@@ -1,0 +1,15 @@
+﻿using DjavaLib.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DjavaLib.Data
+{
+    public interface IUserRepository
+    {
+        User GetUserByLogin(string login);
+        bool Authenticate(string login, string password);
+    }
+}

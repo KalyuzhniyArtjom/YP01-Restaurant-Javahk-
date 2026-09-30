@@ -3,4 +3,6 @@
     <File Path=".gitignore" />
   </Folder>
   <Project Path="Djava.Client/Djava.Client.csproj" />
+  <Project Path="Djava.Tests/Djava.Tests.csproj" />
+  <Project Path="DjavaLib/DjavaLib.csproj" />
 </Solution>
