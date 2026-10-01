@@ -35,8 +35,8 @@ namespace DjavaLib.Data
                             {
                                 Login = reader.GetString(0),
                                 PasswordHash = reader.GetString(1),
-                                FullName = FixEncoding(reader.GetString(2)),
-                                ContactInfo = reader.IsDBNull(3) ? null : FixEncoding(reader.GetString(3)),
+                                FullName = reader.GetString(2),
+                                ContactInfo = reader.IsDBNull(3) ? null : reader.GetString(3),
                                 Role = (UserRole)Enum.Parse(typeof(UserRole), reader.GetString(4))
                             };
                         }
@@ -64,21 +64,6 @@ namespace DjavaLib.Data
                 byte[] hash = sha.ComputeHash(bytes);
                 return BitConverter.ToString(hash).Replace("-", "").ToLower();
             }
-        }
-
-        private string FixEncoding(string input)
-        {
-            if (string.IsNullOrEmpty(input)) return input;
-
-            // Npgsql 4.x читает UTF-8 байты как Latin-1 / CP1252
-            // Перекодируем обратно: берём строку, превращаем в байты как Latin-1,
-            // затем декодируем эти байты как UTF-8.
-            byte[] bytes = new byte[input.Length];
-            for (int i = 0; i < input.Length; i++)
-            {
-                bytes[i] = (byte)input[i];
-            }
-            return Encoding.UTF8.GetString(bytes);
         }
     }
 }

@@ -1,13 +1,6 @@
 ﻿using DjavaLib.Data;
 using DjavaLib.Validation;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Djava.Client
@@ -17,6 +10,14 @@ namespace Djava.Client
         public MainForm()
         {
             InitializeComponent();
+            this.Load += MainForm_Load;
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            // Пароль скрыт при запуске
+            txtPassword.UseSystemPasswordChar = true;
+            btnTogglePassword.Text = "👁";
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -70,6 +71,20 @@ namespace Djava.Client
             if (result == DialogResult.Yes)
             {
                 Application.Exit();
+            }
+        }
+
+        private void btnTogglePassword_Click(object sender, EventArgs e)
+        {
+            if (txtPassword.UseSystemPasswordChar)
+            {
+                txtPassword.UseSystemPasswordChar = false;
+                btnTogglePassword.Text = "🙈";
+            }
+            else
+            {
+                txtPassword.UseSystemPasswordChar = true;
+                btnTogglePassword.Text = "👁";
             }
         }
     }

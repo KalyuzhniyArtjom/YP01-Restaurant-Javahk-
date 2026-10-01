@@ -2,7 +2,7 @@
   <Folder Name="/Элементы решения/">
     <File Path=".gitignore" />
   </Folder>
-  <Project Path="Djava.Client/Djava.Client.csproj" />
-  <Project Path="Djava.Tests/Djava.Tests.csproj" />
-  <Project Path="DjavaLib/DjavaLib.csproj" />
+  <Project Path="Djava.Client/Djava.Client.csproj" Id="de62b838-8b78-4e67-ae43-61f192a881b5" />
+  <Project Path="Djava.Tests/Djava.Tests.csproj" Id="de2ac469-af89-444d-ae82-fdfb084929ed" />
+  <Project Path="DjavaLib/DjavaLib.csproj" Id="6472937d-7312-4428-aecc-6fc22d9b06e5" />
 </Solution>
