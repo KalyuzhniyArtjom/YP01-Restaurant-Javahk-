@@ -22,6 +22,16 @@ namespace Djava.Web.Controllers
             return View();
         }
 
+        public IActionResult Menu()
+        {
+            ViewBag.Login = HttpContext.Session.GetString("Login");
+            ViewBag.FullName = HttpContext.Session.GetString("FullName");
+            ViewBag.Role = HttpContext.Session.GetString("Role");
+
+            var dishes = _dishes.GetAllAvailableDishes();
+            return View(dishes);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

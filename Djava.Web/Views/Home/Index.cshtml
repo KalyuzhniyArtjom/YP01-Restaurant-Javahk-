@@ -95,7 +95,17 @@
         <a class="navbar-brand" href="/" style="font-size: 1.5rem; font-weight: 700;">
             🍽 Джавахк
         </a>
-        <div class="ms-auto">
+
+        <ul class="navbar-nav me-auto ms-4">
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Menu">Меню</a>
+            </li>
+        </ul>
+
+        <div class="d-flex align-items-center">
             @if (login == null)
             {
                 <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Login">
@@ -120,14 +130,14 @@
         <p>Традиционная восточная и узбекская кухня</p>
         @if (login == null)
         {
-            <a href="#popular" class="btn btn-light btn-lg me-2">Посмотреть меню</a>
+            <a asp-controller="Home" asp-action="Menu" class="btn btn-light btn-lg me-2">Посмотреть меню</a>
             <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg">
                 Зарегистрироваться
             </a>
         }
         else
         {
-            <a href="#popular" class="btn btn-light btn-lg">Посмотреть меню</a>
+            <a asp-controller="Home" asp-action="Menu" class="btn btn-light btn-lg">Посмотреть меню</a>
         }
     </div>
 </div>
@@ -160,9 +170,9 @@
     </div>
 </div>
 
-<!-- ПОПУЛЯРНЫЕ БЛЮДА -->
+<!-- БЛЮДА МЕСЯЦА -->
 <div class="container mt-5" id="popular">
-    <h2 class="text-center mb-4">Наши блюда</h2>
+    <h2 class="text-center mb-4">Блюда месяца</h2>
     <div class="row g-4">
         @if (dishes != null)
         {
