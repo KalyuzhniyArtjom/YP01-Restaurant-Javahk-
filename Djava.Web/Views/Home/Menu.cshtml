@@ -1,0 +1,150 @@
+﻿@model List<DjavaLib.Models.Dish>
+@{
+    ViewData["Title"] = "Меню";
+    var login = Context.Session.GetString("Login");
+    var fullName = Context.Session.GetString("FullName");
+    var role = Context.Session.GetString("Role");
+}
+
+<style>
+    body {
+        background-color: #faf6f0;
+    }
+
+    .menu-header {
+        background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+        color: #fff;
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+        .menu-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+    .dish-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        height: 100%;
+    }
+
+        .dish-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dish-card .dish-body {
+            padding: 20px;
+        }
+
+        .dish-card h5 {
+            color: #2b1d14;
+        }
+
+        .dish-card .price {
+            color: #8b4513;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+    footer {
+        background: #2b1d14;
+        color: #fff;
+        padding: 30px 0;
+        text-align: center;
+        margin-top: 60px;
+    }
+</style>
+
+<!-- НАВБАР -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2b1d14;">
+    <div class="container">
+        <a class="navbar-brand" href="/" style="font-size: 1.5rem; font-weight: 700;">
+            🍽 Джавахк
+        </a>
+
+        <ul class="navbar-nav me-auto ms-4">
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Menu">Меню</a>
+            </li>
+        </ul>
+
+        <div class="d-flex align-items-center">
+            @if (login == null)
+            {
+                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Login">
+                    👤 Войти
+                </a>
+            }
+            else
+            {
+                <span class="text-light me-3">👤 @fullName | @role</span>
+                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Logout">
+                    Выйти
+                </a>
+            }
+        </div>
+    </div>
+</nav>
+
+<!-- ЗАГОЛОВОК СТРАНИЦЫ -->
+<div class="menu-header">
+    <div class="container">
+        <h1>Меню ресторана «Джавахк»</h1>
+        <p>Традиционная восточная и узбекская кухня</p>
+    </div>
+</div>
+
+<!-- ВСЕ БЛЮДА -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Все блюда</h2>
+    <div class="row g-4">
+        @if (Model != null && Model.Count > 0)
+        {
+            foreach (var dish in Model)
+            {
+                <div class="col-md-4">
+                    <div class="dish-card">
+                        <div class="dish-body">
+                            <h5>@dish.Name</h5>
+                            <p class="text-muted small">@dish.Description</p>
+                            <p class="price">@dish.Price ₽</p>
+                            @if (login != null)
+                            {
+                                <button class="btn btn-primary w-100" disabled>В корзину</button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Account" asp-action="Login"
+                                   class="btn btn-outline-primary w-100">
+                                    Войти, чтобы заказать
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center text-muted">Пока нет доступных блюд</p>
+        }
+    </div>
+</div>
+
+<!-- ПОДВАЛ -->
+<footer>
+    <div class="container">
+        <p class="mb-1">Ресторан «Джавахк» — восточная и узбекская кухня</p>
+        <p class="mb-0 small">
+            © 2026 · Адрес: 1-й переулок Металлистов, дом 3, Торжок · Тел: +7 (910) 539-18-08
+        </p>
+    </div>
+</footer>
