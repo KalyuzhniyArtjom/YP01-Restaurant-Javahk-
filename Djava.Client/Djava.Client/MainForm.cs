@@ -43,9 +43,14 @@ namespace Djava.Client
                 if (ok)
                 {
                     var user = repo.GetUserByLogin(login);
+
                     MessageBox.Show("Добро пожаловать, " + user.FullName +
                                     "!\nРоль: " + user.Role,
                         "Успешный вход");
+
+                    var ordersForm = new OrdersForm(user.FullName);
+                    ordersForm.Show();
+                    this.Hide();
                 }
                 else
                 {
