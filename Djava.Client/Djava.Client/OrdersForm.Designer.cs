@@ -81,6 +81,7 @@
             // 
             // btnRefresh
             // 
+            this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRefresh.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(184)))), ((int)(((byte)(160)))), ((int)(((byte)(165)))));
             this.btnRefresh.Location = new System.Drawing.Point(640, 15);
             this.btnRefresh.Name = "btnRefresh";
@@ -92,6 +93,7 @@
             // 
             // btnLogout
             // 
+            this.btnLogout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnLogout.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(90)))), ((int)(((byte)(90)))));
             this.btnLogout.Location = new System.Drawing.Point(750, 15);
             this.btnLogout.Name = "btnLogout";
@@ -157,6 +159,8 @@
             this.dgvOrders.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvOrders.Size = new System.Drawing.Size(984, 361);
             this.dgvOrders.TabIndex = 3;
+            this.dgvOrders.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvOrders_CellDoubleClick);
+            this.dgvOrders.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvOrders_CellFormatting);
             // 
             // OrdersForm
             // 

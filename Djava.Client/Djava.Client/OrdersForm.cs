@@ -86,6 +86,30 @@ namespace Djava.Client
                 cmbStatus.SelectedIndex = 0;
         }
 
+        private void dgvOrders_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var row = dgvOrders.Rows[e.RowIndex];
+            if (row.DataBoundItem == null) return;
+
+            var order = row.DataBoundItem as Order;
+            if (order == null) return;
+
+            string columnName = dgvOrders.Columns[e.ColumnIndex].Name;
+
+            if (columnName == "DeliveryMethod")
+            {
+                e.Value = GetDeliveryText(order.DeliveryMethod);
+                e.FormattingApplied = true;
+            }
+            else if (columnName == "Status")
+            {
+                e.Value = GetStatusText(order.Status);
+                e.FormattingApplied = true;
+            }
+        }
+
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             LoadOrders();
@@ -165,6 +189,31 @@ namespace Djava.Client
                 case "Выполнен": return OrderStatus.Completed;
                 case "Отменён": return OrderStatus.Cancelled;
                 default: return OrderStatus.New;
+            }
+        }
+
+        private string GetDeliveryText(DeliveryType type)
+        {
+            switch (type)
+            {
+                case DeliveryType.Pickup: return "Самовывоз";
+                case DeliveryType.Delivery: return "Доставка";
+                default: return "";
+            }
+        }
+
+        private string GetStatusText(OrderStatus status)
+        {
+            switch (status)
+            {
+                case OrderStatus.New: return "Новый";
+                case OrderStatus.Accepted: return "Принят";
+                case OrderStatus.Cooking: return "Готовится";
+                case OrderStatus.Ready: return "Готов";
+                case OrderStatus.Delivering: return "Доставляется";
+                case OrderStatus.Completed: return "Выполнен";
+                case OrderStatus.Cancelled: return "Отменён";
+                default: return "";
             }
         }
     }
