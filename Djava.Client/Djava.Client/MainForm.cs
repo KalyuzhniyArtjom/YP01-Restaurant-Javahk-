@@ -18,6 +18,16 @@ namespace Djava.Client
             // Пароль скрыт при запуске
             txtPassword.UseSystemPasswordChar = true;
             btnTogglePassword.Text = "👁";
+
+            // Прямой путь к логотипу
+            string logoPath = @"D:\ex2\Djava.Client\Djava.Client\images\LogoDjava.png";
+            if (System.IO.File.Exists(logoPath))
+            {
+                pictureLogo.Image = System.Drawing.Image.FromFile(logoPath);
+            }
+
+            // Фокус на поле логина
+            txtLogin.Focus();
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -43,6 +53,7 @@ namespace Djava.Client
                 if (ok)
                 {
                     var user = repo.GetUserByLogin(login);
+
                     MessageBox.Show("Добро пожаловать, " + user.FullName +
                                     "!\nРоль: " + user.Role,
                         "Успешный вход");

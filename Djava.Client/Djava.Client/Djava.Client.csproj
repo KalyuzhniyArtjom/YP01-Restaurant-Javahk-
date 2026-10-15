@@ -130,9 +130,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DjavaLib\DjavaLib.csproj">
-      <Project>{6472937d-7312-4428-aecc-6fc22d9b06e5}</Project>
-      <Name>DjavaLib</Name>
+    <ProjectReference Include="..\DjavaLib.Core\DjavaLib.Core.csproj">
+      <Project>{92a23cae-f165-490d-8722-3af1011e1100}</Project>
+      <Name>DjavaLib.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

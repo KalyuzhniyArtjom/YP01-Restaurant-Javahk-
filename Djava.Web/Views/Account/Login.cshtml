@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Вход";
+    var savedLogin = ViewBag.Login as string ?? "";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <h2 class="mb-4">Вход в систему</h2>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            <form method="post">
+                <div class="mb-3">
+                    <label>Логин</label>
+                    <input name="login" value="@savedLogin" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Пароль</label>
+                    <div class="input-group">
+                        <input name="password" id="loginPassword" type="password"
+                               class="form-control" autocomplete="off" />
+                        <button type="button" class="btn btn-outline-secondary"
+                                onclick="togglePassword('loginPassword')">
+                            👁
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Войти</button>
+            </form>
+
+            <p class="mt-3 text-center">
+                <a asp-action="Register">Нет аккаунта? Зарегистрироваться</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword(id) {
+            var field = document.getElementById(id);
+            if (field.type === 'password') {
+                field.type = 'text';
+            } else {
+                field.type = 'password';
+            }
+        }
+
+        // Автофокус на поле пароля при ошибке
+        @if (ViewBag.ClearPassword != null)
+            {
+                <text>
+                                var passField = document.getElementById('loginPassword');
+                passField.value = '';
+                passField.focus();
+            </text>
+        }
+    </script>
+}

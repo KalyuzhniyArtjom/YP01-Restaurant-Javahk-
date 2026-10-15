@@ -2,7 +2,8 @@
   <Folder Name="/Элементы решения/">
     <File Path=".gitignore" />
   </Folder>
+  <Project Path="../Djava.Web/Djava.Web.csproj" Id="8cd274fa-ab5c-4e47-933e-11f899f9bc1c" />
   <Project Path="Djava.Client/Djava.Client.csproj" Id="de62b838-8b78-4e67-ae43-61f192a881b5" />
   <Project Path="Djava.Tests/Djava.Tests.csproj" Id="de2ac469-af89-444d-ae82-fdfb084929ed" />
-  <Project Path="DjavaLib/DjavaLib.csproj" Id="6472937d-7312-4428-aecc-6fc22d9b06e5" />
+  <Project Path="DjavaLib.Core/DjavaLib.Core.csproj" Id="92a23cae-f165-490d-8722-3af1011e1100" />
 </Solution>

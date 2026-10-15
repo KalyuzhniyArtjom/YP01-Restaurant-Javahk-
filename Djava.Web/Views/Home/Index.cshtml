@@ -1,0 +1,395 @@
+﻿@{
+    ViewData["Title"] = "Ресторан «Джавахк»";
+    var login = Context.Session.GetString("Login");
+    var fullName = Context.Session.GetString("FullName");
+    var role = Context.Session.GetString("Role");
+    var dishes = ViewBag.PopularDishes as List<DjavaLib.Models.Dish>;
+}
+
+<style>
+    body {
+        background-color: #ececec;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .hero {
+        background-color: #a08a8f;
+        color: #fff;
+        padding: 60px 20px 100px;
+        text-align: center;
+    }
+
+        .hero .logo-img {
+            height: 120px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+    .vk-btn {
+        background-color: #5a5a5a;
+        color: #fff;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+        margin-top: 20px;
+    }
+
+        .vk-btn:hover {
+            background-color: #3a3a3a;
+            color: #fff;
+        }
+
+        .vk-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+    .advantage-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px 20px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        height: 100%;
+        border-top: 3px solid #b8a0a5;
+    }
+
+        .advantage-card .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .advantage-card h5 {
+            color: #3a3a3a;
+        }
+
+    .dish-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .dish-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 18px rgba(160, 138, 143, 0.4);
+        }
+
+        .dish-card .dish-body {
+            padding: 20px;
+        }
+
+        .dish-card h5 {
+            color: #3a3a3a;
+        }
+
+        .dish-card .price {
+            color: #8a6f75;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+    .review-card {
+        background: #fff;
+        border-left: 4px solid #b8a0a5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+
+    .stars {
+        color: #8a6f75;
+    }
+
+    footer {
+        background: #3a3a3a;
+        color: #fff;
+        padding: 40px 0 20px;
+        margin-top: 60px;
+    }
+
+        footer h5 {
+            color: #d5c2c6;
+            margin-bottom: 15px;
+        }
+
+        footer p {
+            color: #d9d9d9;
+        }
+
+    .nav-link {
+        transition: color 0.2s;
+    }
+
+        .nav-link:hover {
+            color: #d5c2c6 !important;
+        }
+
+    .btn-primary {
+        background-color: #b8a0a5 !important;
+        border-color: #b8a0a5 !important;
+    }
+
+        .btn-primary:hover {
+            background-color: #9a8288 !important;
+            border-color: #9a8288 !important;
+        }
+
+    .btn-outline-primary {
+        color: #8a6f75 !important;
+        border-color: #8a6f75 !important;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #8a6f75 !important;
+            color: #fff !important;
+        }
+</style>
+
+<!-- НАВБАР -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #3a3a3a;">
+    <div class="container d-flex align-items-center justify-content-between">
+
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Menu">Меню</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Корзина</a>
+            </li>
+        </ul>
+
+        <div class="d-flex align-items-center">
+
+            <span class="text-light me-3" style="font-size: 0.9rem;">
+                📞 +7 (910) 539-18-08
+            </span>
+
+            @if (login == null)
+            {
+                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Login">
+                    👤 Войти
+                </a>
+            }
+            else
+            {
+                <span class="text-light me-3">👤 @fullName | @role</span>
+                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Logout">
+                    Выйти
+                </a>
+            }
+        </div>
+    </div>
+</nav>
+
+<!-- ГЛАВНЫЙ БАННЕР -->
+<div class="hero">
+    <div class="container">
+        <img src="~/images/LogoDjava.png" alt="Ресторан «Джавахк»" class="logo-img" />
+
+        <h1>Ресторан «Джавахк»</h1>
+        <p>Традиционная восточная и узбекская кухня</p>
+
+        @if (login == null)
+        {
+            <a asp-controller="Home" asp-action="Menu" class="btn btn-light btn-lg me-2">Посмотреть меню</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg">
+                Зарегистрироваться
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Home" asp-action="Menu" class="btn btn-light btn-lg">Посмотреть меню</a>
+        }
+
+        <div>
+            <a href="https://vk.ru/id636806687" target="_blank" class="vk-btn">
+                <img src="~/images/vk.png" alt="ВК" />
+                Наш сайт ВКонтакте
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ПРЕИМУЩЕСТВА -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4" style="color: #3a3a3a;">Наши преимущества</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="advantage-card">
+                <div class="icon">🚚</div>
+                <h5>Быстрая доставка</h5>
+                <p class="text-muted">Доставим заказ в течение 60 минут</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="advantage-card">
+                <div class="icon">🥘</div>
+                <h5>Свежие блюда</h5>
+                <p class="text-muted">Готовим из натуральных продуктов</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="advantage-card">
+                <div class="icon">⭐</div>
+                <h5>Высокий сервис</h5>
+                <p class="text-muted">Заботимся о каждом госте</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- БЛЮДА МЕСЯЦА -->
+<div class="container mt-5" id="popular">
+    <h2 class="text-center mb-4" style="color: #3a3a3a;">Блюда месяца</h2>
+    <div class="row g-4">
+        @if (dishes != null)
+        {
+            foreach (var dish in dishes.Take(6))
+            {
+                <div class="col-md-4">
+                    <div class="dish-card">
+                        <div class="dish-body">
+                            <h5>@dish.Name</h5>
+                            <p class="text-muted small">@dish.Description</p>
+                            <p class="price">@dish.Price ₽</p>
+                            @if (login != null)
+                            {
+                                <button class="btn btn-primary w-100" disabled>В корзину</button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Account" asp-action="Login"
+                                   class="btn btn-outline-primary w-100">
+                                    Войти, чтобы заказать
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- ОТЗЫВЫ -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4" style="color: #3a3a3a;">Отзывы наших гостей</h2>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p class="mt-2 mb-1">Очень вкусный плов, доставили быстро!</p>
+                <small class="text-muted">— Андрей Кузнецов, 15.09.2026</small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="review-card">
+                <div class="stars">★★★★☆</div>
+                <p class="mt-2 mb-1">Всё понравилось, но лагман был слегка острым.</p>
+                <small class="text-muted">— Ольга Смирнова, 18.09.2026</small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p class="mt-2 mb-1">Фирменный салат — просто восторг!</p>
+                <small class="text-muted">— Пётр Иванов, 20.09.2026</small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p class="mt-2 mb-1">Обслуживание на высоте, обязательно вернусь.</p>
+                <small class="text-muted">— Мария Петрова, 22.09.2026</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ПОДВАЛ -->
+<footer>
+    <div class="container">
+        <div class="row">
+
+            <div class="col-md-4 mb-4">
+                <h5>Ресторан «Джавахк»</h5>
+                <p class="small">
+                    Традиционная восточная и узбекская кухня.
+                    Готовим с душой для каждого гостя.
+                </p>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <h5>Контакты</h5>
+                <p class="small mb-1">
+                    📍 1-й переулок Металлистов, дом 3,<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;Торжок, Тверская область, 172003
+                </p>
+                <p class="small mb-1">
+                    📞 +7 (910) 539-18-08
+                </p>
+                <p class="small mb-1">
+                    🕒 Ежедневно с 9:00 до 22:00
+                </p>
+                <p class="small mb-0">
+                    🌐
+                    <a href="https://vk.ru/id636806687" target="_blank"
+                       style="color: #d5c2c6; text-decoration: none;">
+                        Мы ВКонтакте
+                    </a>
+                </p>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <h5>Разделы</h5>
+                <p class="small mb-1">
+                    <a asp-controller="Home" asp-action="Index"
+                       style="color: #d5c2c6; text-decoration: none;">
+                        🏠 Главная
+                    </a>
+                </p>
+                <p class="small mb-1">
+                    <a asp-controller="Home" asp-action="Menu"
+                       style="color: #d5c2c6; text-decoration: none;">
+                        🍽 Меню
+                    </a>
+                </p>
+                <p class="small mb-0">
+                    <a asp-controller="Account" asp-action="Login"
+                       style="color: #d5c2c6; text-decoration: none;">
+                        👤 Личный кабинет
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <hr style="border-color: #5a5a5a;" />
+
+        <div class="text-center small">
+            © 2026 Ресторан «Джавахк» · Все права защищены
+        </div>
+    </div>
+</footer>
