@@ -25,10 +25,6 @@ namespace Djava.Client
             {
                 pictureLogo.Image = System.Drawing.Image.FromFile(logoPath);
             }
-            else
-            {
-                MessageBox.Show("Логотип не найден по пути: " + logoPath);
-            }
 
             // Фокус на поле логина
             txtLogin.Focus();
@@ -61,10 +57,6 @@ namespace Djava.Client
                     MessageBox.Show("Добро пожаловать, " + user.FullName +
                                     "!\nРоль: " + user.Role,
                         "Успешный вход");
-
-                    var ordersForm = new OrdersForm(user.FullName);
-                    ordersForm.Show();
-                    this.Hide();
                 }
                 else
                 {
