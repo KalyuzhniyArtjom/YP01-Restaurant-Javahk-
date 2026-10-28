@@ -9,6 +9,11 @@ namespace Djava.Client
     {
         private readonly OrderListRepository _orders;
         private readonly string _adminName;
+        private readonly OrderFilter _filter;
+        private readonly OrderListModel _model;
+
+        private string _sortColumn = "OrderDate";
+        private bool _ascending = false;
 
         public OrdersForm(string adminName)
         {
@@ -17,21 +22,43 @@ namespace Djava.Client
 
             var context = new DbContext(DbConfig.GetConnectionString());
             _orders = new OrderListRepository(context);
+            _filter = new OrderFilter();
+            _model = new OrderListModel();
 
             lblAdmin.Text = "👤 " + adminName;
 
+            LoadStatusFilter();
             LoadOrders();
-            LoadStatuses();
+        }
+
+        private void LoadStatusFilter()
+        {
+            cmbStatusFilter.Items.Clear();
+            cmbStatusFilter.Items.Add(new StatusFilterItem("(все)", null));
+            cmbStatusFilter.Items.Add(new StatusFilterItem("Новый", OrderStatus.New));
+            cmbStatusFilter.Items.Add(new StatusFilterItem("Принят", OrderStatus.Accepted));
+            cmbStatusFilter.Items.Add(new StatusFilterItem("Готовится", OrderStatus.Cooking));
+            cmbStatusFilter.Items.Add(new StatusFilterItem("Готов", OrderStatus.Ready));
+            cmbStatusFilter.Items.Add(new StatusFilterItem("Доставляется", OrderStatus.Delivering));
+            cmbStatusFilter.Items.Add(new StatusFilterItem("Выполнен", OrderStatus.Completed));
+            cmbStatusFilter.Items.Add(new StatusFilterItem("Отменён", OrderStatus.Cancelled));
+
+            cmbStatusFilter.DisplayMember = "DisplayName";
+            cmbStatusFilter.SelectedIndex = 0;
+
+            cmbStatusFilter.SelectedIndexChanged += cmbStatusFilter_SelectedIndexChanged;
         }
 
         private void LoadOrders()
         {
             try
             {
-                var orders = _orders.GetOrders();
+                _model.Orders = _orders.GetOrders(_filter);
+
+                var result = _model.ApplyFilterAndSort(_filter, _sortColumn, _ascending);
 
                 dgvOrders.DataSource = null;
-                dgvOrders.DataSource = orders;
+                dgvOrders.DataSource = result;
 
                 if (dgvOrders.Columns["OrderId"] != null)
                     dgvOrders.Columns["OrderId"].HeaderText = "№";
@@ -60,30 +87,15 @@ namespace Djava.Client
                     dgvOrders.Columns["TotalAmount"].DefaultCellStyle.Format = "N2";
                 }
 
-                lblCount.Text = "Всего заказов: " + orders.Count;
+                lblStatus.Text = "Всего заказов: " + result.Count;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка загрузки заказов: " + ex.Message,
-                                "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка загрузки данных: " + ex.Message, "Ошибка",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
                 dgvOrders.DataSource = null;
-                lblCount.Text = "Всего заказов: 0";
+                lblStatus.Text = "Ошибка загрузки данных";
             }
-        }
-
-        private void LoadStatuses()
-        {
-            cmbStatus.Items.Clear();
-            cmbStatus.Items.Add("Новый");
-            cmbStatus.Items.Add("Принят");
-            cmbStatus.Items.Add("Готовится");
-            cmbStatus.Items.Add("Готов");
-            cmbStatus.Items.Add("Доставляется");
-            cmbStatus.Items.Add("Выполнен");
-            cmbStatus.Items.Add("Отменён");
-
-            if (cmbStatus.Items.Count > 0)
-                cmbStatus.SelectedIndex = 0;
         }
 
         private void dgvOrders_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -110,6 +122,50 @@ namespace Djava.Client
             }
         }
 
+        private void cmbStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var item = cmbStatusFilter.SelectedItem as StatusFilterItem;
+            if (item != null)
+            {
+                _filter.Status = item.Value;
+                LoadOrders();
+            }
+        }
+
+        private void btnResetFilter_Click(object sender, EventArgs e)
+        {
+            _filter.Reset();
+            cmbStatusFilter.SelectedIndex = 0;
+            _sortColumn = "OrderDate";
+            _ascending = false;
+            LoadOrders();
+        }
+
+        private void dgvOrders_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex == -1)
+            {
+                string columnName = dgvOrders.Columns[e.ColumnIndex].Name;
+
+                if (_sortColumn == columnName)
+                {
+                    if (!_ascending) _ascending = true;
+                    else
+                    {
+                        _sortColumn = "OrderDate";
+                        _ascending = false;
+                    }
+                }
+                else
+                {
+                    _sortColumn = columnName;
+                    _ascending = true;
+                }
+
+                LoadOrders();
+            }
+        }
+
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             LoadOrders();
@@ -118,46 +174,6 @@ namespace Djava.Client
         private void btnLogout_Click(object sender, EventArgs e)
         {
             this.Close();
-        }
-
-        private void btnChangeStatus_Click(object sender, EventArgs e)
-        {
-            if (dgvOrders.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Выберите заказ из списка", "Ошибка",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (cmbStatus.SelectedItem == null)
-            {
-                MessageBox.Show("Выберите новый статус заказа", "Ошибка",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                int orderId = Convert.ToInt32(dgvOrders.SelectedRows[0].Cells["OrderId"].Value);
-                OrderStatus status = ParseStatus(cmbStatus.SelectedItem.ToString());
-
-                if (_orders.UpdateOrderStatus(orderId, status))
-                {
-                    MessageBox.Show("Статус заказа обновлён", "Успех",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadOrders();
-                }
-                else
-                {
-                    MessageBox.Show("Не удалось обновить статус", "Ошибка",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
 
         private void dgvOrders_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -174,21 +190,6 @@ namespace Djava.Client
             {
                 MessageBox.Show("Ошибка открытия состава заказа: " + ex.Message,
                                 "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private OrderStatus ParseStatus(string value)
-        {
-            switch (value)
-            {
-                case "Новый": return OrderStatus.New;
-                case "Принят": return OrderStatus.Accepted;
-                case "Готовится": return OrderStatus.Cooking;
-                case "Готов": return OrderStatus.Ready;
-                case "Доставляется": return OrderStatus.Delivering;
-                case "Выполнен": return OrderStatus.Completed;
-                case "Отменён": return OrderStatus.Cancelled;
-                default: return OrderStatus.New;
             }
         }
 
@@ -215,6 +216,44 @@ namespace Djava.Client
                 case OrderStatus.Cancelled: return "Отменён";
                 default: return "";
             }
+        }
+
+        private string _lastColumn = null;
+        private int _clickCount = 0;
+
+        private void dgvOrders_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            string columnName = dgvOrders.Columns[e.ColumnIndex].Name;
+
+            if (_lastColumn == columnName)
+            {
+                _clickCount++;
+            }
+            else
+            {
+                _lastColumn = columnName;
+                _clickCount = 1;
+            }
+
+            switch (_clickCount)
+            {
+                case 1:
+                    _sortColumn = columnName;
+                    _ascending = true;
+                    break;
+                case 2:
+                    _sortColumn = columnName;
+                    _ascending = false;
+                    break;
+                default:
+                    _sortColumn = "OrderDate";
+                    _ascending = false;
+                    _lastColumn = null;
+                    _clickCount = 0;
+                    break;
+            }
+
+            LoadOrders();
         }
     }
 }
