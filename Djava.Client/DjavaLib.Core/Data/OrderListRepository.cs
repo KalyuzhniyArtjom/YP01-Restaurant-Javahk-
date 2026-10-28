@@ -14,7 +14,7 @@ namespace DjavaLib.Data
             _context = context;
         }
 
-        public List<Order> GetOrders(OrderFilter filter)
+        public List<Order> GetOrders()
         {
             var result = new List<Order>();
 
@@ -33,40 +33,26 @@ namespace DjavaLib.Data
                     FROM ""Заказы"" з
                     JOIN ""Клиенты"" к ON з.""ID_Клиента"" = к.""ID_Клиента""
                     JOIN ""Статусы_Заказа"" ст ON з.""ID_Статуса"" = ст.""ID_Статуса""
-                    LEFT JOIN ""Позиции_Заказа"" пз ON з.""ID_Заказа"" = пз.""ID_Заказа""";
-
-                if (filter != null && filter.Status != null)
-                {
-                    sql += " WHERE з.\"ID_Статуса\" = @statusId";
-                }
-
-                sql += @"
+                    LEFT JOIN ""Позиции_Заказа"" пз ON з.""ID_Заказа"" = пз.""ID_Заказа""
                     GROUP BY з.""ID_Заказа"", з.""Дата_Оформления"", к.""Фамилия"", к.""Имя"",
                              к.""Телефон"", к.""Email"", з.""Способ_Получения"", ст.""Наименование""
                     ORDER BY з.""Дата_Оформления"" DESC";
 
                 using (var cmd = new NpgsqlCommand(sql, conn))
+                using (var reader = cmd.ExecuteReader())
                 {
-                    if (filter != null && filter.Status != null)
+                    while (reader.Read())
                     {
-                        cmd.Parameters.AddWithValue("@statusId", GetStatusId(filter.Status.Value));
-                    }
-
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
+                        result.Add(new Order
                         {
-                            result.Add(new Order
-                            {
-                                OrderId = reader.GetInt32(0),
-                                OrderDate = reader.GetDateTime(1),
-                                ClientName = reader.GetString(2),
-                                ClientContact = reader.GetString(3),
-                                DeliveryMethod = ParseDeliveryType(reader.GetString(4)),
-                                Status = ParseOrderStatus(reader.GetString(5)),
-                                TotalAmount = reader.GetDecimal(6)
-                            });
-                        }
+                            OrderId = reader.GetInt32(0),
+                            OrderDate = reader.GetDateTime(1),
+                            ClientName = reader.GetString(2),
+                            ClientContact = reader.GetString(3),
+                            DeliveryMethod = ParseDeliveryType(reader.GetString(4)),
+                            Status = ParseOrderStatus(reader.GetString(5)),
+                            TotalAmount = reader.GetDecimal(6)
+                        });
                     }
                 }
             }
@@ -163,7 +149,7 @@ namespace DjavaLib.Data
                 case OrderStatus.Delivering: return 5;
                 case OrderStatus.Completed: return 6;
                 case OrderStatus.Cancelled: return 7;
-                default: return 1;
+                default: return 1; 
             }
         }
     }

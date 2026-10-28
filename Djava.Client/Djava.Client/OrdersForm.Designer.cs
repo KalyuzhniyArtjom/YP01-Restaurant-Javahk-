@@ -29,20 +29,18 @@
         private void InitializeComponent()
         {
             this.panelTop = new System.Windows.Forms.Panel();
-            this.btnLogout = new System.Windows.Forms.Button();
-            this.lblAdmin = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.lblAdmin = new System.Windows.Forms.Label();
             this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnLogout = new System.Windows.Forms.Button();
+            this.panelBottom = new System.Windows.Forms.Panel();
+            this.cmbStatus = new System.Windows.Forms.ComboBox();
+            this.btnChangeStatus = new System.Windows.Forms.Button();
+            this.lblCount = new System.Windows.Forms.Label();
             this.dgvOrders = new System.Windows.Forms.DataGridView();
-            this.panelFilter = new System.Windows.Forms.Panel();
-            this.btnResetFilter = new System.Windows.Forms.Button();
-            this.cmbStatusFilter = new System.Windows.Forms.ComboBox();
-            this.panelStatus = new System.Windows.Forms.Panel();
-            this.lblStatus = new System.Windows.Forms.Label();
             this.panelTop.SuspendLayout();
+            this.panelBottom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvOrders)).BeginInit();
-            this.panelFilter.SuspendLayout();
-            this.panelStatus.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelTop
@@ -57,17 +55,16 @@
             this.panelTop.Size = new System.Drawing.Size(984, 100);
             this.panelTop.TabIndex = 0;
             // 
-            // btnLogout
+            // label1
             // 
-            this.btnLogout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLogout.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(90)))), ((int)(((byte)(90)))));
-            this.btnLogout.Location = new System.Drawing.Point(750, 15);
-            this.btnLogout.Name = "btnLogout";
-            this.btnLogout.Size = new System.Drawing.Size(80, 30);
-            this.btnLogout.TabIndex = 2;
-            this.btnLogout.Text = "Выйти";
-            this.btnLogout.UseVisualStyleBackColor = false;
-            this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.label1.Location = new System.Drawing.Point(15, 15);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(151, 24);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Список заказов";
             // 
             // lblAdmin
             // 
@@ -82,17 +79,6 @@
             this.lblAdmin.Text = "Администратор";
             this.lblAdmin.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.label1.Location = new System.Drawing.Point(15, 15);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(151, 24);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Список заказов";
-            // 
             // btnRefresh
             // 
             this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -105,6 +91,60 @@
             this.btnRefresh.UseVisualStyleBackColor = false;
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
+            // btnLogout
+            // 
+            this.btnLogout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLogout.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(90)))), ((int)(((byte)(90)))));
+            this.btnLogout.Location = new System.Drawing.Point(750, 15);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(80, 30);
+            this.btnLogout.TabIndex = 2;
+            this.btnLogout.Text = "Выйти";
+            this.btnLogout.UseVisualStyleBackColor = false;
+            this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
+            // 
+            // panelBottom
+            // 
+            this.panelBottom.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(236)))), ((int)(((byte)(236)))));
+            this.panelBottom.Controls.Add(this.lblCount);
+            this.panelBottom.Controls.Add(this.cmbStatus);
+            this.panelBottom.Controls.Add(this.btnChangeStatus);
+            this.panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelBottom.Location = new System.Drawing.Point(0, 461);
+            this.panelBottom.Name = "panelBottom";
+            this.panelBottom.Size = new System.Drawing.Size(984, 100);
+            this.panelBottom.TabIndex = 2;
+            // 
+            // cmbStatus
+            // 
+            this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbStatus.FormattingEnabled = true;
+            this.cmbStatus.Location = new System.Drawing.Point(12, 21);
+            this.cmbStatus.Name = "cmbStatus";
+            this.cmbStatus.Size = new System.Drawing.Size(200, 21);
+            this.cmbStatus.TabIndex = 3;
+            // 
+            // btnChangeStatus
+            // 
+            this.btnChangeStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(184)))), ((int)(((byte)(160)))), ((int)(((byte)(165)))));
+            this.btnChangeStatus.Location = new System.Drawing.Point(230, 15);
+            this.btnChangeStatus.Name = "btnChangeStatus";
+            this.btnChangeStatus.Size = new System.Drawing.Size(160, 30);
+            this.btnChangeStatus.TabIndex = 0;
+            this.btnChangeStatus.Text = "Сменить статус";
+            this.btnChangeStatus.UseVisualStyleBackColor = false;
+            this.btnChangeStatus.Click += new System.EventHandler(this.btnChangeStatus_Click);
+            // 
+            // lblCount
+            // 
+            this.lblCount.AutoSize = true;
+            this.lblCount.BackColor = System.Drawing.Color.Silver;
+            this.lblCount.Location = new System.Drawing.Point(800, 18);
+            this.lblCount.Name = "lblCount";
+            this.lblCount.Size = new System.Drawing.Size(94, 13);
+            this.lblCount.TabIndex = 3;
+            this.lblCount.Text = "Всего заказов: 0";
+            // 
             // dgvOrders
             // 
             this.dgvOrders.AllowUserToAddRows = false;
@@ -112,72 +152,15 @@
             this.dgvOrders.BackgroundColor = System.Drawing.Color.White;
             this.dgvOrders.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvOrders.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvOrders.Location = new System.Drawing.Point(0, 150);
+            this.dgvOrders.Location = new System.Drawing.Point(0, 100);
             this.dgvOrders.MultiSelect = false;
             this.dgvOrders.Name = "dgvOrders";
             this.dgvOrders.ReadOnly = true;
             this.dgvOrders.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvOrders.Size = new System.Drawing.Size(984, 381);
+            this.dgvOrders.Size = new System.Drawing.Size(984, 361);
             this.dgvOrders.TabIndex = 3;
-            this.dgvOrders.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvOrders_CellClick);
             this.dgvOrders.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvOrders_CellDoubleClick);
             this.dgvOrders.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvOrders_CellFormatting);
-            this.dgvOrders.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvOrders_ColumnHeaderMouseClick);
-            // 
-            // panelFilter
-            // 
-            this.panelFilter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.panelFilter.Controls.Add(this.btnResetFilter);
-            this.panelFilter.Controls.Add(this.cmbStatusFilter);
-            this.panelFilter.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelFilter.Location = new System.Drawing.Point(0, 100);
-            this.panelFilter.Name = "panelFilter";
-            this.panelFilter.Size = new System.Drawing.Size(984, 50);
-            this.panelFilter.TabIndex = 4;
-            // 
-            // btnResetFilter
-            // 
-            this.btnResetFilter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(184)))), ((int)(((byte)(160)))), ((int)(((byte)(165)))));
-            this.btnResetFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnResetFilter.ForeColor = System.Drawing.Color.White;
-            this.btnResetFilter.Location = new System.Drawing.Point(220, 10);
-            this.btnResetFilter.Name = "btnResetFilter";
-            this.btnResetFilter.Size = new System.Drawing.Size(150, 30);
-            this.btnResetFilter.TabIndex = 1;
-            this.btnResetFilter.Text = "Сбросить фильтры";
-            this.btnResetFilter.UseVisualStyleBackColor = false;
-            this.btnResetFilter.Click += new System.EventHandler(this.btnResetFilter_Click);
-            // 
-            // cmbStatusFilter
-            // 
-            this.cmbStatusFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbStatusFilter.FormattingEnabled = true;
-            this.cmbStatusFilter.Location = new System.Drawing.Point(10, 12);
-            this.cmbStatusFilter.Name = "cmbStatusFilter";
-            this.cmbStatusFilter.Size = new System.Drawing.Size(200, 21);
-            this.cmbStatusFilter.TabIndex = 0;
-            this.cmbStatusFilter.SelectedIndexChanged += new System.EventHandler(this.cmbStatusFilter_SelectedIndexChanged);
-            // 
-            // panelStatus
-            // 
-            this.panelStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(236)))), ((int)(((byte)(236)))));
-            this.panelStatus.Controls.Add(this.lblStatus);
-            this.panelStatus.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelStatus.Location = new System.Drawing.Point(0, 531);
-            this.panelStatus.Name = "panelStatus";
-            this.panelStatus.Size = new System.Drawing.Size(984, 30);
-            this.panelStatus.TabIndex = 5;
-            // 
-            // lblStatus
-            // 
-            this.lblStatus.AutoSize = true;
-            this.lblStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.lblStatus.Location = new System.Drawing.Point(10, 6);
-            this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(102, 15);
-            this.lblStatus.TabIndex = 0;
-            this.lblStatus.Text = "Всего заказов: 0";
             // 
             // OrdersForm
             // 
@@ -185,8 +168,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(984, 561);
             this.Controls.Add(this.dgvOrders);
-            this.Controls.Add(this.panelStatus);
-            this.Controls.Add(this.panelFilter);
+            this.Controls.Add(this.panelBottom);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.panelTop);
             this.Name = "OrdersForm";
@@ -194,10 +176,9 @@
             this.Text = "Список заказов — Ресторан «Джавахк»";
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
+            this.panelBottom.ResumeLayout(false);
+            this.panelBottom.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvOrders)).EndInit();
-            this.panelFilter.ResumeLayout(false);
-            this.panelStatus.ResumeLayout(false);
-            this.panelStatus.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -209,11 +190,10 @@
         private System.Windows.Forms.Label lblAdmin;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Panel panelBottom;
+        private System.Windows.Forms.Label lblCount;
+        private System.Windows.Forms.ComboBox cmbStatus;
+        private System.Windows.Forms.Button btnChangeStatus;
         private System.Windows.Forms.DataGridView dgvOrders;
-        private System.Windows.Forms.Panel panelFilter;
-        private System.Windows.Forms.Button btnResetFilter;
-        private System.Windows.Forms.ComboBox cmbStatusFilter;
-        private System.Windows.Forms.Panel panelStatus;
-        private System.Windows.Forms.Label lblStatus;
     }
 }
