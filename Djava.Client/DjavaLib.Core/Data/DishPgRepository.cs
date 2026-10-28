@@ -20,9 +20,9 @@ namespace DjavaLib.Data
             {
                 conn.Open();
                 string sql = "SELECT \"ID_Блюда\", \"ID_Категории\", \"Наименование\", \"Описание\", " +
-                             "\"Состав\", \"Цена\", \"Вес_Объём\", \"Признак_Доступности\" " +
+                             "\"Состав\", \"Цена\", \"Вес_Объём\", \"Путь_К_Фотографии\", \"Признак_Доступности\" " +
                              "FROM \"Блюда\" WHERE \"Признак_Доступности\" = TRUE " +
-                             "ORDER BY \"ID_Категории\", \"Наименование\"";
+                             "ORDER BY \"Наименование\"";
 
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 using (var reader = cmd.ExecuteReader())
@@ -70,7 +70,7 @@ namespace DjavaLib.Data
             {
                 conn.Open();
                 string sql = "SELECT \"ID_Блюда\", \"ID_Категории\", \"Наименование\", \"Описание\", " +
-                             "\"Состав\", \"Цена\", \"Вес_Объём\", \"Признак_Доступности\" " +
+                             "\"Состав\", \"Цена\", \"Вес_Объём\", \"Путь_К_Фотографии\", \"Признак_Доступности\" " +
                              "FROM \"Блюда\" WHERE \"ID_Категории\" = @catId AND \"Признак_Доступности\" = TRUE";
 
                 using (var cmd = new NpgsqlCommand(sql, conn))
@@ -94,7 +94,7 @@ namespace DjavaLib.Data
             {
                 conn.Open();
                 string sql = "SELECT \"ID_Блюда\", \"ID_Категории\", \"Наименование\", \"Описание\", " +
-                             "\"Состав\", \"Цена\", \"Вес_Объём\", \"Признак_Доступности\" " +
+                             "\"Состав\", \"Цена\", \"Вес_Объём\", \"Путь_К_Фотографии\", \"Признак_Доступности\" " +
                              "FROM \"Блюда\" WHERE \"ID_Блюда\" = @id";
 
                 using (var cmd = new NpgsqlCommand(sql, conn))
@@ -120,7 +120,8 @@ namespace DjavaLib.Data
                 Composition = reader.IsDBNull(4) ? "" : reader.GetString(4),
                 Price = reader.GetDecimal(5),
                 Weight = reader.IsDBNull(6) ? (decimal?)null : reader.GetDecimal(6),
-                IsAvailable = reader.GetBoolean(7)
+                PhotoPath = reader.IsDBNull(7) ? "" : reader.GetString(7),
+                IsAvailable = reader.GetBoolean(8)
             };
         }
     }
