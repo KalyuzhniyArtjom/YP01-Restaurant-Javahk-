@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.lblLogin = new System.Windows.Forms.Label();
             this.txtLogin = new System.Windows.Forms.TextBox();
             this.lblPassword = new System.Windows.Forms.Label();
@@ -43,46 +44,51 @@
             // lblLogin
             // 
             this.lblLogin.AutoSize = true;
-            this.lblLogin.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblLogin.Location = new System.Drawing.Point(61, 179);
+            this.lblLogin.Font = new System.Drawing.Font("Sitka Heading", 14.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblLogin.Location = new System.Drawing.Point(16, 170);
             this.lblLogin.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblLogin.Name = "lblLogin";
-            this.lblLogin.Size = new System.Drawing.Size(55, 16);
+            this.lblLogin.Size = new System.Drawing.Size(68, 28);
             this.lblLogin.TabIndex = 0;
             this.lblLogin.Text = "Логин:";
             // 
             // txtLogin
             // 
-            this.txtLogin.Location = new System.Drawing.Point(117, 179);
+            this.txtLogin.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtLogin.Location = new System.Drawing.Point(86, 173);
             this.txtLogin.Name = "txtLogin";
-            this.txtLogin.Size = new System.Drawing.Size(100, 22);
+            this.txtLogin.Size = new System.Drawing.Size(141, 26);
             this.txtLogin.TabIndex = 1;
             // 
             // lblPassword
             // 
             this.lblPassword.AutoSize = true;
-            this.lblPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblPassword.Location = new System.Drawing.Point(235, 179);
+            this.lblPassword.BackColor = System.Drawing.Color.MistyRose;
+            this.lblPassword.Font = new System.Drawing.Font("Sitka Heading", 14.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblPassword.Location = new System.Drawing.Point(6, 207);
             this.lblPassword.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(66, 16);
+            this.lblPassword.Size = new System.Drawing.Size(78, 28);
             this.lblPassword.TabIndex = 2;
             this.lblPassword.Text = "Пароль:";
             // 
             // txtPassword
             // 
-            this.txtPassword.Location = new System.Drawing.Point(301, 179);
+            this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtPassword.Location = new System.Drawing.Point(86, 212);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(100, 22);
+            this.txtPassword.Size = new System.Drawing.Size(141, 26);
             this.txtPassword.TabIndex = 3;
             // 
             // btnLogin
             // 
-            this.btnLogin.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.btnLogin.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnLogin.Location = new System.Drawing.Point(138, 236);
+            this.btnLogin.BackColor = System.Drawing.Color.Silver;
+            this.btnLogin.FlatAppearance.BorderSize = 0;
+            this.btnLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogin.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnLogin.Location = new System.Drawing.Point(21, 253);
             this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(79, 25);
+            this.btnLogin.Size = new System.Drawing.Size(105, 25);
             this.btnLogin.TabIndex = 4;
             this.btnLogin.Text = "Войти";
             this.btnLogin.UseVisualStyleBackColor = false;
@@ -90,11 +96,13 @@
             // 
             // btnExit
             // 
-            this.btnExit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.btnExit.BackColor = System.Drawing.Color.Gray;
             this.btnExit.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnExit.Location = new System.Drawing.Point(252, 236);
+            this.btnExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExit.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnExit.Location = new System.Drawing.Point(193, 253);
             this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(79, 25);
+            this.btnExit.Size = new System.Drawing.Size(105, 25);
             this.btnExit.TabIndex = 5;
             this.btnExit.Text = "Выйти";
             this.btnExit.UseVisualStyleBackColor = false;
@@ -102,13 +110,14 @@
             // 
             // btnTogglePassword
             // 
-            this.btnTogglePassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.btnTogglePassword.BackColor = System.Drawing.Color.MistyRose;
             this.btnTogglePassword.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnTogglePassword.FlatAppearance.BorderSize = 0;
             this.btnTogglePassword.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnTogglePassword.Location = new System.Drawing.Point(400, 179);
+            this.btnTogglePassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnTogglePassword.Location = new System.Drawing.Point(230, 210);
             this.btnTogglePassword.Name = "btnTogglePassword";
-            this.btnTogglePassword.Size = new System.Drawing.Size(22, 23);
+            this.btnTogglePassword.Size = new System.Drawing.Size(22, 24);
             this.btnTogglePassword.TabIndex = 6;
             this.btnTogglePassword.TabStop = false;
             this.btnTogglePassword.Text = "👁️";
@@ -118,18 +127,19 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.Location = new System.Drawing.Point(133, 134);
+            this.label1.Font = new System.Drawing.Font("Sitka Heading", 18F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(49, 135);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(214, 25);
+            this.label1.Size = new System.Drawing.Size(227, 35);
             this.label1.TabIndex = 7;
             this.label1.Text = "Ресторан - Джавахк";
             // 
             // pictureLogo
             // 
-            this.pictureLogo.Location = new System.Drawing.Point(181, 11);
+            this.pictureLogo.Location = new System.Drawing.Point(56, 6);
             this.pictureLogo.Name = "pictureLogo";
-            this.pictureLogo.Size = new System.Drawing.Size(120, 120);
+            this.pictureLogo.Size = new System.Drawing.Size(208, 139);
+            this.pictureLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureLogo.TabIndex = 8;
             this.pictureLogo.TabStop = false;
             // 
@@ -138,9 +148,9 @@
             this.AcceptButton = this.btnLogin;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.BackColor = System.Drawing.Color.MistyRose;
             this.CancelButton = this.btnExit;
-            this.ClientSize = new System.Drawing.Size(484, 311);
+            this.ClientSize = new System.Drawing.Size(321, 299);
             this.Controls.Add(this.pictureLogo);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnTogglePassword);
@@ -152,9 +162,9 @@
             this.Controls.Add(this.lblLogin);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.MaximumSize = new System.Drawing.Size(500, 350);
-            this.MinimumSize = new System.Drawing.Size(500, 350);
+            this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Вход в систему «Джавахк»";

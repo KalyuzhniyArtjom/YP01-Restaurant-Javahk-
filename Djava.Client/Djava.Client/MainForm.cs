@@ -20,7 +20,7 @@ namespace Djava.Client
             btnTogglePassword.Text = "👁";
 
             // Прямой путь к логотипу
-            string logoPath = @"D:\ex2\Djava.Client\Djava.Client\images\LogoDjava.png";
+            string logoPath = @"D:\YP-P-40\Djava.Client\Djava.Client\images\JAVAHKLOGOnf.png";
             if (System.IO.File.Exists(logoPath))
             {
                 pictureLogo.Image = System.Drawing.Image.FromFile(logoPath);
