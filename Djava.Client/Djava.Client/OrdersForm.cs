@@ -19,13 +19,12 @@ namespace Djava.Client
         {
             InitializeComponent();
             _adminName = adminName;
+            
 
             var context = new DbContext(DbConfig.GetConnectionString());
             _orders = new OrderListRepository(context);
             _filter = new OrderFilter();
             _model = new OrderListModel();
-
-            lblAdmin.Text = "👤 " + adminName;
 
             LoadStatusFilter();
             LoadOrders();
