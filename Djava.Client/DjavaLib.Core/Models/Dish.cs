@@ -9,6 +9,7 @@
         public string Composition { get; set; }
         public decimal Price { get; set; }
         public decimal? Weight { get; set; }
+        public string PhotoPath { get; set; }
         public bool IsAvailable { get; set; }
     }
 }
