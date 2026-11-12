@@ -10,7 +10,7 @@ namespace Djava.Client
     {
         public static string GetConnectionString()
         {
-            return "Host=localhost;Port=5432;Database=djava_restaurant;Username=postgres;Password=1991;Encoding=UTF8";
+            return "Host=192.168.1.48;Port=5432;Database=djava_restaurant;Username=st52-03;Password=5203;Encoding=UTF8";
         }
     }
 }
