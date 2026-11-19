@@ -3,6 +3,7 @@
     var login = Context.Session.GetString("Login");
     var fullName = Context.Session.GetString("FullName");
     var role = Context.Session.GetString("Role");
+    var categories = ViewBag.Categories as List<DjavaLib.Models.Category>;
 }
 
 <style>
@@ -227,6 +228,49 @@
             color: #fff;
         }
 
+    /* --- ЛЕВАЯ ПАНЕЛЬ (КАТЕГОРИИ) --- */
+    .category-panel {
+        position: sticky;
+        top: 20px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #eaeaea;
+    }
+
+    .category-btn {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 10px 15px;
+        margin-bottom: 5px;
+        border: none;
+        background: transparent;
+        color: #333;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+        .category-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .category-btn.active {
+            background: #b8a0a5;
+            color: #fff;
+        }
+
+    #statusMessage {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #777;
+        margin-top: 20px;
+        text-align: center;
+    }
+
     /* --- ПОДВАЛ --- */
     .footer {
         background: #1a1a1a;
@@ -270,33 +314,24 @@
 <!-- НАВБАР -->
 <nav class="navbar">
     <div class="container d-flex align-items-center justify-content-between">
-        <!-- Логотип -->
         <a class="navbar-brand" href="/">
             <img src="~/images/LogoDjava.png" alt="Логотип" />
             Джавахк
         </a>
-
-        <!-- Ссылки -->
         <ul class="navbar-nav d-flex flex-row align-items-center m-0">
             <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a></li>
             <li class="nav-item"><a class="nav-link active" asp-controller="Home" asp-action="Menu">Меню</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Корзина</a></li>
         </ul>
-
-        <!-- Пользователь -->
         <div class="d-flex align-items-center">
             @if (login == null)
             {
-                <a class="btn-login" asp-controller="Account" asp-action="Login">
-                    👤 Войти
-                </a>
+                <a class="btn-login" asp-controller="Account" asp-action="Login">👤 Войти</a>
             }
             else
             {
                 <span class="user-info">👤 @fullName | @role</span>
-                <a class="btn-login" asp-controller="Account" asp-action="Logout">
-                    Выйти
-                </a>
+                <a class="btn-login" asp-controller="Account" asp-action="Logout">Выйти</a>
             }
         </div>
     </div>
@@ -311,71 +346,89 @@
     </div>
 </div>
 
-<!-- СЕТКА БЛЮД -->
-<div class="container mb-5">
-    <div class="row g-4">
-        @if (Model != null && Model.Count > 0)
-        {
-            foreach (var dish in Model)
-            {
-                <div class="col-md-6 col-lg-4">
-                    <div class="dish-card">
-
-                        <div class="dish-img-container">
-                            @if (!string.IsNullOrEmpty(dish.PhotoPath))
-                            {
-                                <img src="@dish.PhotoPath" alt="@dish.Name" class="dish-photo" onerror="this.onerror=null; this.src='/images/no-photo.png';" />
-                            }
-                            else
-                            {
-                                <img src="~/images/no-photo.png" alt="Нет фото" class="dish-photo" />
-                            }
-                        </div>
-
-                        <div class="dish-body">
-                            <h5 class="dish-title">@dish.Name</h5>
-
-                            @if (!string.IsNullOrEmpty(dish.Description))
-                            {
-                                <div class="dish-macros">@dish.Description</div>
-                            }
-
-                            <p class="dish-desc">
-                                @if (!string.IsNullOrEmpty(dish.Composition))
-                                {
-                                    @dish.Composition
-                                }
-                            </p>
-
-                            <div class="dish-footer">
-                                <p class="dish-price">@(Convert.ToDecimal(dish.Price).ToString("N0")) ₽</p>
-                                @if (dish.Weight != null)
-                                {
-                                    <span class="dish-weight">@(Convert.ToDecimal(dish.Weight).ToString("0")) г</span>
-                                }
-                            </div>
-
-                            @if (login != null)
-                            {
-                                <a href="#" class="btn-dish">Добавить в корзину</a>
-                            }
-                            else
-                            {
-                                <a asp-controller="Account" asp-action="Login" class="btn-dish-outline">
-                                    Добавить в корзину
-                                </a>
-                            }
-                        </div>
-                    </div>
+<!-- ОСНОВНОЙ БЛОК -->
+<div class="container mb-5 mt-4">
+    <div class="row">
+        <!-- ЛЕВАЯ ПАНЕЛЬ (КАТЕГОРИИ) -->
+        <div class="col-lg-3 mb-4">
+            <div class="category-panel">
+                <h5 class="mb-3 font-weight-bold">Категории</h5>
+                <div id="categoryList">
+                    <button class="category-btn active" data-id="">Все блюда</button>
+                    @if (categories != null)
+                    {
+                        foreach (var cat in categories)
+                        {
+                            <button class="category-btn" data-id="@cat.Id">@cat.Name</button>
+                        }
+                    }
                 </div>
-            }
-        }
-        else
-        {
-            <div class="col-12 text-center py-5">
-                <h3 class="text-muted">Пока нет доступных блюд</h3>
             </div>
-        }
+        </div>
+
+        <!-- ПРАВАЯ ПАНЕЛЬ (СЕТКА БЛЮД) -->
+        <div class="col-lg-9">
+            <div id="dishesContainer" class="row g-4">
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var dish in Model)
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="dish-card">
+                                <div class="dish-img-container">
+                                    @if (!string.IsNullOrEmpty(dish.PhotoPath))
+                                    {
+                                        <img src="@dish.PhotoPath" alt="@dish.Name" class="dish-photo" onerror="this.onerror=null; this.src='/images/no-photo.png';" />
+                                    }
+                                    else
+                                    {
+                                        <img src="~/images/no-photo.png" alt="Нет фото" class="dish-photo" />
+                                    }
+                                </div>
+                                <div class="dish-body">
+                                    <h5 class="dish-title">@dish.Name</h5>
+                                    @if (!string.IsNullOrEmpty(dish.Description))
+                                    {
+                                        <div class="dish-macros">@dish.Description</div>
+                                    }
+                                    <p class="dish-desc">
+                                        @if (!string.IsNullOrEmpty(dish.Composition))
+                                        {
+                                            @dish.Composition
+                                        }
+                                    </p>
+                                    <div class="dish-footer">
+                                        <p class="dish-price">@(Convert.ToDecimal(dish.Price).ToString("N0")) ₽</p>
+                                        @if (dish.Weight != null)
+                                        {
+                                            <span class="dish-weight">@(Convert.ToDecimal(dish.Weight).ToString("0")) г</span>
+                                        }
+                                    </div>
+                                    @if (login != null)
+                                    {
+                                        <a href="#" class="btn-dish">Добавить в корзину</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Account" asp-action="Login" class="btn-dish-outline">Добавить в корзину</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center py-5">
+                        <h3 class="text-muted">Пока нет доступных блюд</h3>
+                    </div>
+                }
+            </div>
+            <!-- Строка состояния -->
+            <div id="statusMessage" class="mt-4">
+                Найдено блюд: @(Model?.Count ?? 0)
+            </div>
+        </div>
     </div>
 </div>
 
@@ -405,3 +458,69 @@
         </div>
     </div>
 </footer>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            const dishesContainer = document.getElementById('dishesContainer');
+            const statusMessage = document.getElementById('statusMessage');
+            const isAuthenticated = '@login' !== '';
+
+            categoryButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    categoryButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const categoryId = this.getAttribute('data-id');
+
+                    fetch(`/Home/GetDishesByCategory?categoryId=${categoryId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            dishesContainer.innerHTML = '';
+
+                            if (!data.success) {
+                                statusMessage.textContent = "Ошибка загрузки: " + data.error;
+                                return;
+                            }
+
+                            if (data.dishes.length === 0) {
+                                statusMessage.textContent = "В этой категории пока нет блюд";
+                                return;
+                            }
+
+                            data.dishes.forEach(dish => {
+                                const card = `
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="dish-card">
+                                            <div class="dish-img-container">
+                                                <img src="${dish.photoPath || '/images/no-photo.png'}" alt="${dish.name}" class="dish-photo" onerror="this.onerror=null; this.src='/images/no-photo.png';" />
+                                            </div>
+                                            <div class="dish-body">
+                                                <h5 class="dish-title">${dish.name}</h5>
+                                                <div class="dish-macros">${dish.description || ''}</div>
+                                                <p class="dish-desc">${dish.composition || ''}</p>
+                                                <div class="dish-footer">
+                                                    <p class="dish-price">${dish.price.toLocaleString('ru-RU')} ₽</p>
+                                                    ${dish.weight ? `<span class="dish-weight">${Math.round(dish.weight)} г</span>` : ''}
+                                                </div>
+                                                ${isAuthenticated
+                                                    ? `<a href="#" class="btn-dish">Добавить в корзину</a>`
+                                                    : `<a href="/Account/Login" class="btn-dish-outline">Добавить в корзину</a>`}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                dishesContainer.insertAdjacentHTML('beforeend', card);
+                            });
+
+                            statusMessage.textContent = `Найдено блюд: ${data.dishes.length}`;
+                        })
+                        .catch(err => {
+                            statusMessage.textContent = "Ошибка сети: " + err;
+                        });
+                });
+            });
+        });
+    </script>
+}
