@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
+	  <RollForward>Major</RollForward>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -10,4 +11,5 @@
     <ProjectReference Include="..\Djava.Client\DjavaLib.Core\DjavaLib.Core.csproj" />
   </ItemGroup>
 
-</Project>
+</Project> 
+ 
