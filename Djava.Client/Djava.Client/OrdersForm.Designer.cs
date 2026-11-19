@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OrdersForm));
             this.panelTop = new System.Windows.Forms.Panel();
+            this.lblStatisticsLink = new System.Windows.Forms.Label();
             this.AdminPictureBox = new System.Windows.Forms.PictureBox();
             this.btnLogout = new System.Windows.Forms.Button();
             this.lblAdmin = new System.Windows.Forms.Label();
@@ -41,7 +42,6 @@
             this.cmbStatusFilter = new System.Windows.Forms.ComboBox();
             this.panelStatus = new System.Windows.Forms.Panel();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.lblStatisticsLink = new System.Windows.Forms.Label();
             this.panelTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.AdminPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvOrders)).BeginInit();
@@ -62,6 +62,19 @@
             this.panelTop.Name = "panelTop";
             this.panelTop.Size = new System.Drawing.Size(984, 100);
             this.panelTop.TabIndex = 0;
+            // 
+            // lblStatisticsLink
+            // 
+            this.lblStatisticsLink.AutoSize = true;
+            this.lblStatisticsLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblStatisticsLink.Font = new System.Drawing.Font("Sitka Heading", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblStatisticsLink.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.lblStatisticsLink.Location = new System.Drawing.Point(164, 9);
+            this.lblStatisticsLink.Name = "lblStatisticsLink";
+            this.lblStatisticsLink.Size = new System.Drawing.Size(224, 30);
+            this.lblStatisticsLink.TabIndex = 4;
+            this.lblStatisticsLink.Text = "Статистика по заказам";
+            this.lblStatisticsLink.Click += new System.EventHandler(this.lblStatisticsLink_Click);
             // 
             // AdminPictureBox
             // 
@@ -201,18 +214,6 @@
             this.lblStatus.Size = new System.Drawing.Size(125, 21);
             this.lblStatus.TabIndex = 0;
             this.lblStatus.Text = "Всего заказов: 0";
-            // 
-            // lblStatisticsLink
-            // 
-            this.lblStatisticsLink.AutoSize = true;
-            this.lblStatisticsLink.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblStatisticsLink.Font = new System.Drawing.Font("Sitka Heading", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblStatisticsLink.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.lblStatisticsLink.Location = new System.Drawing.Point(164, 9);
-            this.lblStatisticsLink.Name = "lblStatisticsLink";
-            this.lblStatisticsLink.Size = new System.Drawing.Size(224, 30);
-            this.lblStatisticsLink.TabIndex = 4;
-            this.lblStatisticsLink.Text = "Статистика по заказам";
             // 
             // OrdersForm
             // 
