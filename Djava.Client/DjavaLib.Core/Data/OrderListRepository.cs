@@ -22,6 +22,8 @@ namespace DjavaLib.Data
             {
                 conn.Open();
 
+                // ИЗМЕНЕНО: Сумма берется из таблицы "Заказы" (поле "Сумма_Заказа"),
+                // убран LEFT JOIN с "Позиции_Заказа" и GROUP BY
                 var sql = @"
                     SELECT з.""ID_Заказа"",
                            з.""Дата_Оформления"",
@@ -29,21 +31,17 @@ namespace DjavaLib.Data
                            COALESCE(к.""Телефон"", к.""Email"", ''),
                            з.""Способ_Получения"",
                            ст.""Наименование"",
-                           COALESCE(SUM(пз.""Сумма""), 0)
+                           з.""Сумма_Заказа""
                     FROM ""Заказы"" з
                     JOIN ""Клиенты"" к ON з.""ID_Клиента"" = к.""ID_Клиента""
-                    JOIN ""Статусы_Заказа"" ст ON з.""ID_Статуса"" = ст.""ID_Статуса""
-                    LEFT JOIN ""Позиции_Заказа"" пз ON з.""ID_Заказа"" = пз.""ID_Заказа""";
+                    JOIN ""Статусы_Заказа"" ст ON з.""ID_Статуса"" = ст.""ID_Статуса""";
 
                 if (filter != null && filter.Status != null)
                 {
                     sql += " WHERE з.\"ID_Статуса\" = @statusId";
                 }
 
-                sql += @"
-                    GROUP BY з.""ID_Заказа"", з.""Дата_Оформления"", к.""Фамилия"", к.""Имя"",
-                             к.""Телефон"", к.""Email"", з.""Способ_Получения"", ст.""Наименование""
-                    ORDER BY з.""Дата_Оформления"" DESC";
+                sql += " ORDER BY з.\"Дата_Оформления\" DESC";
 
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
@@ -64,7 +62,7 @@ namespace DjavaLib.Data
                                 ClientContact = reader.GetString(3),
                                 DeliveryMethod = ParseDeliveryType(reader.GetString(4)),
                                 Status = ParseOrderStatus(reader.GetString(5)),
-                                TotalAmount = reader.GetDecimal(6)
+                                TotalAmount = reader.GetDecimal(6) // Теперь тут реальная сумма
                             });
                         }
                     }

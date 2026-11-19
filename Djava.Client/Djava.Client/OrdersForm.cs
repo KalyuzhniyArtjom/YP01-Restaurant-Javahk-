@@ -13,6 +13,9 @@ namespace Djava.Client
         private readonly OrderFilter _filter;
         private readonly OrderListModel _model;
 
+        private readonly DbContext _dbContext; // Сохраняем контекст
+        private StatisticsForm _statsForm;     // Ссылка на форму статистики
+
         private string _sortColumn = "OrderDate";
         private bool _ascending = false;
 
@@ -21,16 +24,62 @@ namespace Djava.Client
             InitializeComponent();
             _adminName = adminName;
 
-            // Создаем контекст (он нужен для заказов)
-            var context = new DbContext(DbConfig.GetConnectionString());
+            // Создаем контекст и сохраняем его в поле класса
+            _dbContext = new DbContext(DbConfig.GetConnectionString());
 
-            _orders = new OrderListRepository(context);
+            _orders = new OrderListRepository(_dbContext);
             _filter = new OrderFilter();
             _model = new OrderListModel();
 
             LoadStatusFilter();
             LoadOrders();
         }
+
+        // --- ОТКРЫТИЕ ФОРМЫ СТАТИСТИКИ ---
+        private void lblStatisticsLink_Click(object sender, EventArgs e)
+        {
+            // Если форма уже открыта, просто активируем её
+            if (_statsForm != null && !_statsForm.IsDisposed)
+            {
+                _statsForm.Activate();
+                return;
+            }
+
+            // Создаем и открываем форму статистики, передавая ей контекст
+            _statsForm = new StatisticsForm(_dbContext);
+
+            // Визуально выделяем активную вкладку
+            lblStatisticsLink.ForeColor = Color.White;
+            lblOrdersLink.ForeColor = Color.Gray;
+
+            // Открываем как модальное окно (блокирует OrdersForm, пока не закроют)
+            _statsForm.ShowDialog();
+
+            // ⚠️ ВАЖНО: После закрытия формы обнуляем ссылку,
+            // чтобы при следующем клике можно было создать новую форму.
+            _statsForm = null;
+
+            // После закрытия формы статистики возвращаем цвета обратно
+            lblOrdersLink.ForeColor = Color.White;
+            lblStatisticsLink.ForeColor = Color.Gray;
+        }
+
+        // --- КЛИК ПО "СПИСОК ЗАКАЗОВ" (если нужно вернуться) ---
+        private void lblOrdersLink_Click(object sender, EventArgs e)
+        {
+            // Если форма статистики открыта, закрываем её
+            if (_statsForm != null && !_statsForm.IsDisposed)
+            {
+                _statsForm.Close();
+                _statsForm = null;
+            }
+
+            // Возвращаем цвета
+            lblOrdersLink.ForeColor = Color.White;
+            lblStatisticsLink.ForeColor = Color.Gray;
+        }
+
+        // --- ОСТАЛЬНОЙ КОД НИЖЕ (БЕЗ ИЗМЕНЕНИЙ) ---
 
         private void LoadStatusFilter()
         {

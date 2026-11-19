@@ -56,12 +56,11 @@ namespace Djava.Client
 
                 if (ok)
                 {
+                    // Получаем данные пользователя (имя, роль)
                     var user = repo.GetUserByLogin(login);
 
-                    MessageBox.Show("Добро пожаловать, " + user.FullName +
-                                    "!\nРоль: " + user.Role,
-                        "Успешный вход");
-
+                    // ⚠️ УБРАНО ОКНО С ПРИВЕТСТВИЕМ
+                    // Сразу открываем форму заказов
                     var ordersForm = new OrdersForm(user.FullName);
                     ordersForm.Show();
                     this.Hide();
@@ -101,7 +100,7 @@ namespace Djava.Client
                 btnTogglePassword.Text = "🙈";
             }
             else
-            {
+            { 
                 txtPassword.UseSystemPasswordChar = true;
                 btnTogglePassword.Text = "👁";
             }
