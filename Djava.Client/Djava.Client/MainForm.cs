@@ -100,7 +100,7 @@ namespace Djava.Client
                 btnTogglePassword.Text = "🙈";
             }
             else
-            {
+            { 
                 txtPassword.UseSystemPasswordChar = true;
                 btnTogglePassword.Text = "👁";
             }
