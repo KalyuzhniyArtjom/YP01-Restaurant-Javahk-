@@ -11,4 +11,5 @@
     <ProjectReference Include="..\Djava.Client\DjavaLib.Core\DjavaLib.Core.csproj" />
   </ItemGroup>
 
-</Project>
+</Project> 
+ 
