@@ -7,40 +7,92 @@
 
 <style>
     body {
-        background-color: #f4f6f9;
+        background-color: #f8f9fa !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
     }
+
+    /* --- ШАПКА (НАВБАР) --- */
+    .navbar {
+        background-color: #1a1a1a !important;
+        padding: 15px 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .navbar-brand {
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+    }
+
+        .navbar-brand img {
+            height: 40px;
+            width: auto;
+        }
+
+    .nav-link {
+        color: #ddd !important;
+        font-weight: 500;
+        transition: color 0.2s;
+        margin-right: 15px;
+        text-decoration: none;
+    }
+
+        .nav-link:hover, .nav-link.active {
+            color: #b8a0a5 !important;
+        }
+
+    .user-info {
+        color: #fff;
+        margin-right: 15px;
+        font-size: 0.9rem;
+    }
+
+    .btn-login {
+        color: #fff;
+        border: 1px solid #fff;
+        padding: 5px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+        .btn-login:hover {
+            background: #fff;
+            color: #1a1a1a;
+        }
 
     /* --- ШАПКА СТРАНИЦЫ --- */
     .menu-header {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/images/fonmenu.png');
+        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url('/images/fonmenu.png');
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
         color: #fff;
         padding: 80px 20px;
         text-align: center;
         border-bottom: 5px solid #b8a0a5;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
         .menu-header .logo-img {
-            height: 120px;
-            margin-bottom: 20px;
+            height: 100px;
+            margin-bottom: 15px;
             filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));
         }
 
         .menu-header h1 {
             font-size: 3.5rem;
             font-weight: 800;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .menu-header p {
             font-size: 1.2rem;
-            color: #d5c2c6;
             font-style: italic;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
@@ -50,91 +102,104 @@
         background: #fff;
         border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         transition: all 0.3s ease;
         height: 100%;
         display: flex;
         flex-direction: column;
         border: 1px solid #eaeaea;
+        padding: 20px;
     }
 
         .dish-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(184, 160, 165, 0.3);
-            border-color: #b8a0a5;
         }
 
-    .dish-photo {
+    /* Маленькая картинка по центру */
+    .dish-img-container {
         width: 100%;
-        height: 220px;
-        object-fit: cover;
-        border-bottom: 1px solid #eaeaea;
+        height: 160px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px;
+        background-color: #fff;
+    }
+
+    .dish-photo {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
     }
 
     .dish-body {
-        padding: 24px;
         display: flex;
         flex-direction: column;
         flex-grow: 1;
+        text-align: left;
     }
 
     .dish-title {
-        font-size: 1.35rem;
+        font-size: 1.25rem;
         font-weight: 800;
         color: #222;
-        margin-bottom: 8px;
-        letter-spacing: -0.5px;
+        margin-bottom: 5px;
+    }
+
+    .dish-macros {
+        font-size: 0.75rem;
+        color: #888;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .dish-desc {
         color: #555;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         margin-bottom: 15px;
         flex-grow: 1;
         line-height: 1.4;
     }
 
-    .dish-details {
-        background-color: #fdfbfb;
-        border-radius: 8px;
-        padding: 12px;
-        font-size: 0.85rem;
-        color: #666;
-        margin-bottom: 20px;
-        border: 1px dashed #e0d6d8;
+    .dish-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
     }
-
-        .dish-details div {
-            margin-bottom: 4px;
-        }
-
-            .dish-details div:last-child {
-                margin-bottom: 0;
-            }
 
     .dish-price {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: 900;
         color: #8a6f75;
-        margin-bottom: 15px;
-        letter-spacing: -1px;
+        margin: 0;
     }
 
-    /* --- КНОПКИ --- */
+    .dish-weight {
+        font-size: 0.9rem;
+        color: #999;
+        font-weight: 600;
+    }
+
+    /* Кнопки в карточке */
     .btn-dish {
         background-color: #b8a0a5;
         color: #fff;
-        border: none;
-        padding: 14px;
+        padding: 12px;
         border-radius: 8px;
         font-weight: 700;
-        transition: background 0.3s;
         text-align: center;
         text-decoration: none;
         display: block;
         text-transform: uppercase;
-        font-size: 0.9rem;
-        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        border: none;
+        width: 100%;
+        cursor: pointer;
+        transition: background 0.2s;
     }
 
         .btn-dish:hover {
@@ -146,46 +211,90 @@
         background-color: transparent;
         color: #8a6f75;
         border: 2px solid #8a6f75;
-        padding: 12px;
+        padding: 10px;
         border-radius: 8px;
         font-weight: 700;
-        transition: all 0.3s;
         text-align: center;
         text-decoration: none;
         display: block;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        transition: all 0.2s;
     }
 
         .btn-dish-outline:hover {
             background-color: #8a6f75;
             color: #fff;
         }
+
+    /* --- ПОДВАЛ --- */
+    .footer {
+        background: #1a1a1a;
+        color: #ddd;
+        padding: 50px 0 20px;
+        margin-top: 80px;
+    }
+
+        .footer h5 {
+            color: #b8a0a5;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .footer p {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .footer a {
+            color: #ddd;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+            .footer a:hover {
+                color: #b8a0a5;
+            }
+
+    .footer-bottom {
+        border-top: 1px solid #333;
+        margin-top: 30px;
+        padding-top: 20px;
+        text-align: center;
+        color: #777;
+        font-size: 0.85rem;
+    }
 </style>
 
 <!-- НАВБАР -->
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #3a3a3a;">
+<nav class="navbar">
     <div class="container d-flex align-items-center justify-content-between">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" asp-controller="Home" asp-action="Menu">Меню</a>
-            </li>
+        <!-- Логотип -->
+        <a class="navbar-brand" href="/">
+            <img src="~/images/LogoDjava.png" alt="Логотип" />
+            Джавахк
+        </a>
+
+        <!-- Ссылки -->
+        <ul class="navbar-nav d-flex flex-row align-items-center m-0">
+            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a></li>
+            <li class="nav-item"><a class="nav-link active" asp-controller="Home" asp-action="Menu">Меню</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Корзина</a></li>
         </ul>
+
+        <!-- Пользователь -->
         <div class="d-flex align-items-center">
             @if (login == null)
             {
-                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Login">
+                <a class="btn-login" asp-controller="Account" asp-action="Login">
                     👤 Войти
                 </a>
             }
             else
             {
-                <span class="text-light me-3">👤 @fullName | @role</span>
-                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Logout">
+                <span class="user-info">👤 @fullName | @role</span>
+                <a class="btn-login" asp-controller="Account" asp-action="Logout">
                     Выйти
                 </a>
             }
@@ -196,61 +305,62 @@
 <!-- ШАПКА СТРАНИЦЫ -->
 <div class="menu-header">
     <div class="container">
-        <img src="~/images/LogoDjava.png" alt="Ресторан «Джавахк»" class="logo-img" />
-        <h1>Меню</h1>
+        <img src="~/images/LogoDjava.png" alt="Логотип" class="logo-img" />
+        <h1>Меню ресторана</h1>
         <p>Традиционная восточная и узбекская кухня</p>
     </div>
 </div>
 
-<!-- СЕТКА С БЛЮДАМИ -->
-<div class="container mt-5 mb-5">
+<!-- СЕТКА БЛЮД -->
+<div class="container mb-5">
     <div class="row g-4">
         @if (Model != null && Model.Count > 0)
         {
             foreach (var dish in Model)
             {
-                <div class="col-md-4 col-sm-6">
+                <div class="col-md-6 col-lg-4">
                     <div class="dish-card">
 
-                        @if (!string.IsNullOrEmpty(dish.PhotoPath))
-                        {
-                            <img src="@dish.PhotoPath" alt="@dish.Name" class="dish-photo" />
-                        }
-                        else
-                        {
-                            <img src="~/images/no-photo.png" alt="Нет фото" class="dish-photo" />
-                        }
+                        <div class="dish-img-container">
+                            @if (!string.IsNullOrEmpty(dish.PhotoPath))
+                            {
+                                <img src="@dish.PhotoPath" alt="@dish.Name" class="dish-photo" onerror="this.onerror=null; this.src='/images/no-photo.png';" />
+                            }
+                            else
+                            {
+                                <img src="~/images/no-photo.png" alt="Нет фото" class="dish-photo" />
+                            }
+                        </div>
 
                         <div class="dish-body">
                             <h5 class="dish-title">@dish.Name</h5>
 
                             @if (!string.IsNullOrEmpty(dish.Description))
                             {
-                                <p class="dish-desc">@dish.Description</p>
+                                <div class="dish-macros">@dish.Description</div>
                             }
 
-                            <div class="dish-details">
+                            <p class="dish-desc">
                                 @if (!string.IsNullOrEmpty(dish.Composition))
                                 {
-                                    <div><strong>Состав:</strong> @dish.Composition</div>
+                                    @dish.Composition
                                 }
+                            </p>
+
+                            <div class="dish-footer">
+                                <p class="dish-price">@(Convert.ToDecimal(dish.Price).ToString("N0")) ₽</p>
                                 @if (dish.Weight != null)
                                 {
-                                    <div><strong>Вес/объём:</strong> @(Convert.ToDecimal(dish.Weight).ToString("0.##")) г</div>
+                                    <span class="dish-weight">@(Convert.ToDecimal(dish.Weight).ToString("0")) г</span>
                                 }
                             </div>
 
-                            <div class="dish-price">@(Convert.ToDecimal(dish.Price).ToString("N2")) ₽</div>
-
-                            <!-- ЛОГИКА КНОПОК (ТЕКСТ ОДИНАКОВЫЙ, НО ДЕЙСТВИЕ РАЗНОЕ) -->
                             @if (login != null)
                             {
-                                <!-- Для авторизованных -->
                                 <a href="#" class="btn-dish">Добавить в корзину</a>
                             }
                             else
                             {
-                                <!-- Для гостей (текст тот же, но ведет на вход) -->
                                 <a asp-controller="Account" asp-action="Login" class="btn-dish-outline">
                                     Добавить в корзину
                                 </a>
@@ -268,3 +378,30 @@
         }
     </div>
 </div>
+
+<!-- ПОДВАЛ -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5>Ресторан «Джавахк»</h5>
+                <p>Традиционная восточная и узбекская кухня. Готовим с душой для каждого гостя.</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>Контакты</h5>
+                <p>📍 1-й переулок Металлистов, дом 3, Торжок</p>
+                <p>📞 +7 (910) 539-18-08</p>
+                <p>🕒 Ежедневно с 9:00 до 22:00</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>Разделы</h5>
+                <p><a asp-controller="Home" asp-action="Index">🏠 Главная</a></p>
+                <p><a asp-controller="Home" asp-action="Menu">🍽 Меню</a></p>
+                <p><a asp-controller="Account" asp-action="Login">👤 Личный кабинет</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 Ресторан «Джавахк» · Все права защищены
+        </div>
+    </div>
+</footer>
