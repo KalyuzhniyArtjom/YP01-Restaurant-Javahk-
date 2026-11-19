@@ -213,7 +213,6 @@
             this.lblStatisticsLink.Size = new System.Drawing.Size(224, 30);
             this.lblStatisticsLink.TabIndex = 4;
             this.lblStatisticsLink.Text = "Статистика по заказам";
-            this.lblStatisticsLink.Click += new System.EventHandler(this.lblStatisticsLink_Click);
             // 
             // OrdersForm
             // 
