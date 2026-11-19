@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using DjavaLib.Data;
 using DjavaLib.Models;
@@ -12,22 +13,57 @@ namespace Djava.Client
         private readonly OrderFilter _filter;
         private readonly OrderListModel _model;
 
+        // Сохраняем контекст в поле класса, чтобы передать в форму статистики
+        private readonly DbContext _dbContext;
+
         private string _sortColumn = "OrderDate";
         private bool _ascending = false;
+
+        private StatisticsForm _statsForm;
 
         public OrdersForm(string adminName)
         {
             InitializeComponent();
             _adminName = adminName;
-            
 
-            var context = new DbContext(DbConfig.GetConnectionString());
-            _orders = new OrderListRepository(context);
+            // Создаем контекст и сохраняем его
+            _dbContext = new DbContext(DbConfig.GetConnectionString());
+
+            _orders = new OrderListRepository(_dbContext);
             _filter = new OrderFilter();
             _model = new OrderListModel();
 
             LoadStatusFilter();
             LoadOrders();
+        }
+
+        private void lblOrdersLink_Click(object sender, EventArgs e)
+        {
+            if (_statsForm != null && !_statsForm.IsDisposed)
+            {
+                _statsForm.Close();
+                _statsForm = null;
+            }
+
+            lblOrdersLink.ForeColor = Color.White;
+            lblStatisticsLink.ForeColor = Color.Gray;
+        }
+
+        private void lblStatisticsLink_Click(object sender, EventArgs e)
+        {
+            if (_statsForm != null && !_statsForm.IsDisposed)
+            {
+                _statsForm.Activate();
+                return;
+            }
+
+            // Передаем сохраненный контекст в форму статистики
+            _statsForm = new StatisticsForm(_dbContext);
+
+            lblStatisticsLink.ForeColor = Color.White;
+            lblOrdersLink.ForeColor = Color.Gray;
+
+            _statsForm.ShowDialog();
         }
 
         private void LoadStatusFilter()

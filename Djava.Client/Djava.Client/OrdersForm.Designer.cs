@@ -33,7 +33,7 @@
             this.AdminPictureBox = new System.Windows.Forms.PictureBox();
             this.btnLogout = new System.Windows.Forms.Button();
             this.lblAdmin = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblOrdersLink = new System.Windows.Forms.Label();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.dgvOrders = new System.Windows.Forms.DataGridView();
             this.panelFilter = new System.Windows.Forms.Panel();
@@ -41,6 +41,7 @@
             this.cmbStatusFilter = new System.Windows.Forms.ComboBox();
             this.panelStatus = new System.Windows.Forms.Panel();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.lblStatisticsLink = new System.Windows.Forms.Label();
             this.panelTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.AdminPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvOrders)).BeginInit();
@@ -51,10 +52,11 @@
             // panelTop
             // 
             this.panelTop.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.panelTop.Controls.Add(this.lblStatisticsLink);
             this.panelTop.Controls.Add(this.AdminPictureBox);
             this.panelTop.Controls.Add(this.btnLogout);
             this.panelTop.Controls.Add(this.lblAdmin);
-            this.panelTop.Controls.Add(this.label1);
+            this.panelTop.Controls.Add(this.lblOrdersLink);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
@@ -97,16 +99,17 @@
             this.lblAdmin.Text = "Администратор";
             this.lblAdmin.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label1
+            // lblOrdersLink
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Sitka Heading", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.label1.Location = new System.Drawing.Point(5, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(153, 30);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Список заказов";
+            this.lblOrdersLink.AutoSize = true;
+            this.lblOrdersLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblOrdersLink.Font = new System.Drawing.Font("Sitka Heading", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblOrdersLink.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.lblOrdersLink.Location = new System.Drawing.Point(5, 9);
+            this.lblOrdersLink.Name = "lblOrdersLink";
+            this.lblOrdersLink.Size = new System.Drawing.Size(153, 30);
+            this.lblOrdersLink.TabIndex = 0;
+            this.lblOrdersLink.Text = "Список заказов";
             // 
             // btnRefresh
             // 
@@ -199,6 +202,19 @@
             this.lblStatus.TabIndex = 0;
             this.lblStatus.Text = "Всего заказов: 0";
             // 
+            // lblStatisticsLink
+            // 
+            this.lblStatisticsLink.AutoSize = true;
+            this.lblStatisticsLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblStatisticsLink.Font = new System.Drawing.Font("Sitka Heading", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblStatisticsLink.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.lblStatisticsLink.Location = new System.Drawing.Point(164, 9);
+            this.lblStatisticsLink.Name = "lblStatisticsLink";
+            this.lblStatisticsLink.Size = new System.Drawing.Size(224, 30);
+            this.lblStatisticsLink.TabIndex = 4;
+            this.lblStatisticsLink.Text = "Статистика по заказам";
+            this.lblStatisticsLink.Click += new System.EventHandler(this.lblStatisticsLink_Click);
+            // 
             // OrdersForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -228,7 +244,7 @@
         private System.Windows.Forms.Panel panelTop;
         private System.Windows.Forms.Button btnLogout;
         private System.Windows.Forms.Label lblAdmin;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblOrdersLink;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.DataGridView dgvOrders;
         private System.Windows.Forms.Panel panelFilter;
@@ -237,5 +253,6 @@
         private System.Windows.Forms.Panel panelStatus;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.PictureBox AdminPictureBox;
+        private System.Windows.Forms.Label lblStatisticsLink;
     }
 }
