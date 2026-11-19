@@ -8,8 +8,9 @@ namespace Djava.Tests
     [TestClass]
     public class AuthTests
     {
-        private const string ConnStr =
-            "Host=192.168.1.48;Port=5432;Database=djava_restaurant_test;Username=st52-03;Password=5203;Encoding=UTF8";
+        // ⚠️ ДОБАВЛЕНО: Строка подключения к тестовой базе данных
+        // Замените пароль/имя базы на свои (обычно djava_restaurant_test)
+        private static string ConnStr => "Host=localhost;Port=5432;Database=djava_restaurant_test;Username=postgres;Password=1991;Encoding=UTF8";
 
         [TestInitialize]
         public void Setup()
