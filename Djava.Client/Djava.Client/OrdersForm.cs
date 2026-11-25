@@ -31,6 +31,10 @@ namespace Djava.Client
             _filter = new OrderFilter();
             _model = new OrderListModel();
 
+            // Разрешаем редактирование таблицы для 5-й задачи
+            dgvOrders.ReadOnly = false;
+            dgvOrders.EditMode = DataGridViewEditMode.EditOnEnter;
+
             LoadStatusFilter();
             LoadOrders();
         }
@@ -78,8 +82,6 @@ namespace Djava.Client
             lblOrdersLink.ForeColor = Color.White;
             lblStatisticsLink.ForeColor = Color.Gray;
         }
-
-        // --- ОСТАЛЬНОЙ КОД НИЖЕ (БЕЗ ИЗМЕНЕНИЙ) ---
 
         private void LoadStatusFilter()
         {
@@ -268,6 +270,21 @@ namespace Djava.Client
             }
         }
 
+        private OrderStatus ParseStatus(string value)
+        {
+            switch (value)
+            {
+                case "Новый": return OrderStatus.New;
+                case "Принят": return OrderStatus.Accepted;
+                case "Готовится": return OrderStatus.Cooking;
+                case "Готов": return OrderStatus.Ready;
+                case "Доставляется": return OrderStatus.Delivering;
+                case "Выполнен": return OrderStatus.Completed;
+                case "Отменён": return OrderStatus.Cancelled;
+                default: return OrderStatus.New;
+            }
+        }
+
         private string _lastColumn = null;
         private int _clickCount = 0;
 
@@ -304,6 +321,91 @@ namespace Djava.Client
             }
 
             LoadOrders();
+        }
+
+        // --- НОВЫЙ ОБРАБОТЧИК ДЛЯ КНОПКИ "СОХРАНИТЬ ИЗМЕНЕНИЯ" ---
+        private void btnSaveChanges_Click(object sender, EventArgs e)
+        {
+            // 1. Проверяем, есть ли данные в таблице
+            if (dgvOrders.Rows.Count == 0)
+            {
+                MessageBox.Show("Нет данных для сохранения.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            bool hasErrors = false;
+
+            // 2. Проверка на пустые поля (Валидация)
+            foreach (DataGridViewRow row in dgvOrders.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                string clientName = row.Cells["ClientName"].Value?.ToString();
+                string clientContact = row.Cells["ClientContact"].Value?.ToString();
+
+                // Подсветка пустого ФИО
+                if (string.IsNullOrWhiteSpace(clientName))
+                {
+                    row.Cells["ClientName"].Style.BackColor = Color.LightCoral;
+                    hasErrors = true;
+                }
+                else
+                {
+                    row.Cells["ClientName"].Style.BackColor = Color.White;
+                }
+
+                // Подсветка пустого телефона
+                if (string.IsNullOrWhiteSpace(clientContact))
+                {
+                    row.Cells["ClientContact"].Style.BackColor = Color.LightCoral;
+                    hasErrors = true;
+                }
+                else
+                {
+                    row.Cells["ClientContact"].Style.BackColor = Color.White;
+                }
+            }
+
+            // Если нашли ошибки — останавливаем сохранение
+            if (hasErrors)
+            {
+                MessageBox.Show("Заполните ФИО и Контакты для всех заказов!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 3. Сохранение в базу данных
+            int updatedCount = 0;
+            try
+            {
+                foreach (DataGridViewRow row in dgvOrders.Rows)
+                {
+                    if (row.IsNewRow) continue;
+
+                    int orderId = Convert.ToInt32(row.Cells["OrderId"].Value);
+                    string name = row.Cells["ClientName"].Value.ToString();
+                    string phone = row.Cells["ClientContact"].Value.ToString();
+
+                    // Получаем способ получения и статус
+                    string deliveryStr = row.Cells["DeliveryMethod"].Value?.ToString() ?? "Самовывоз";
+                    DeliveryType delivery = deliveryStr == "Доставка" ? DeliveryType.Delivery : DeliveryType.Pickup;
+
+                    string statusStr = row.Cells["Status"].Value?.ToString() ?? "Новый";
+                    OrderStatus status = ParseStatus(statusStr);
+
+                    // Вызываем метод из репозитория
+                    if (_orders.UpdateOrderDetails(orderId, name, phone, delivery, status))
+                    {
+                        updatedCount++;
+                    }
+                }
+
+                MessageBox.Show($"Успешно обновлено заказов: {updatedCount}", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadOrders(); // Перезагружаем таблицу, чтобы увидеть свежие данные
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при сохранении: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
