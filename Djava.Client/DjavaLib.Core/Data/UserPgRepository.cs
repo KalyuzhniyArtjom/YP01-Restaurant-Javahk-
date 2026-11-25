@@ -91,6 +91,28 @@ namespace DjavaLib.Data
             }
         }
 
+        // ⚠️ ИСПРАВЛЕННЫЙ МЕТОД (Ищем клиента по Email или Телефону)
+        public int GetClientIdByLogin(string login)
+        {
+            using (var conn = new NpgsqlConnection(_connectionString))
+            {
+                conn.Open();
+                // Связываем Users и Клиенты по ContactInfo (Email или Телефон)
+                string sql = @"
+                    SELECT к.""ID_Клиента"" 
+                    FROM ""Клиенты"" к
+                    JOIN ""Users"" u ON (u.""ContactInfo"" = к.""Email"" OR u.""ContactInfo"" = к.""Телефон"")
+                    WHERE u.""Login"" = @login";
+
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@login", login);
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+        }
+
         private string HashPassword(string password)
         {
             using (var sha = SHA256.Create())

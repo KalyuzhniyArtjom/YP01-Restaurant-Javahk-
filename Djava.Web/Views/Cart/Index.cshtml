@@ -1,25 +1,198 @@
 ﻿@model List<DjavaLib.Models.CartItem>
 @{
-    ViewData["Title"] = "Корзина";
+    ViewData["Title"] = "Корзина — Ресторан «Джавахк»";
 }
 
-<div class="container mt-5 mb-5">
-    <h1 class="text-center mb-4">Корзина</h1>
+<style>
+    body {
+        background-color: #f8f9fa !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .cart-container {
+        max-width: 1000px;
+        margin: 50px auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        padding: 30px;
+    }
+
+    .cart-title {
+        font-weight: 800;
+        color: #222;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .cart-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+
+        .cart-table th {
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            padding: 10px 15px;
+            border: none;
+        }
+
+        .cart-table td {
+            padding: 15px;
+            background: #f8f9fa;
+            border: none;
+            vertical-align: middle;
+        }
+
+        .cart-table tr td:first-child {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        .cart-table tr td:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+    .cart-img {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .dish-name {
+        font-weight: 700;
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+    .qty-btn {
+        background: #fff;
+        color: #b8a0a5;
+        border: 2px solid #b8a0a5;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .qty-btn:hover {
+            background: #b8a0a5;
+            color: #fff;
+        }
+
+    .qty-val {
+        display: inline-block;
+        width: 40px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .btn-remove {
+        background: transparent;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: 0.2s;
+    }
+
+        .btn-remove:hover {
+            color: #a71d2a;
+            transform: scale(1.1);
+        }
+
+    .cart-total-box {
+        text-align: right;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px dashed #eee;
+    }
+
+    .cart-total {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #8a6f75;
+        margin-bottom: 5px;
+    }
+
+    .cart-count-text {
+        font-size: 1rem;
+        color: #999;
+    }
+
+    .btn-checkout {
+        background: #b8a0a5;
+        color: white;
+        padding: 15px 40px;
+        border-radius: 10px;
+        font-weight: 700;
+        border: none;
+        font-size: 1.1rem;
+        transition: 0.3s;
+        margin-left: 20px;
+    }
+
+        .btn-checkout:hover {
+            background: #9a8288;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(184, 160, 165, 0.4);
+        }
+
+    .btn-continue {
+        color: #8a6f75;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 15px 0;
+        display: inline-block;
+        transition: 0.2s;
+    }
+
+        .btn-continue:hover {
+            color: #6b5358;
+        }
+
+    .empty-cart {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+        .empty-cart h3 {
+            color: #555;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+</style>
+
+<div class="cart-container">
+    <h1 class="cart-title">🛒 Корзина</h1>
 
     @if (Model == null || Model.Count == 0)
     {
-        <div class="text-center py-5">
+        <div class="empty-cart">
             <h3>Ваша корзина пуста 😢</h3>
-            <a asp-controller="Home" asp-action="Menu" class="btn btn-primary mt-3">Перейти в меню</a>
+            <a asp-controller="Home" asp-action="Menu" class="btn-checkout mt-3">Перейти в меню</a>
         </div>
     }
     else
     {
-        <table class="table table-bordered">
+        <table class="cart-table">
             <thead>
                 <tr>
                     <th>Фото</th>
-                    <th>Название</th>
+                    <th>Блюдо</th>
                     <th>Цена</th>
                     <th>Количество</th>
                     <th>Сумма</th>
@@ -30,27 +203,32 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td><img src="@item.PhotoPath" width="60" class="cart-img" data-fallback="/images/no-photo.png" /></td>
-                        <td>@item.DishName</td>
-                        <td>@item.Price.ToString("N2") ₽</td>
+                        <td><img src="@item.PhotoPath" class="cart-img" alt="@item.DishName" /></td>
+                        <td class="dish-name">@item.DishName</td>
+                        <td style="font-weight: 600; color: #555;">@item.Price.ToString("N2") ₽</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-secondary btn-qty" data-cartid="@item.CartId" data-qty="@(item.Quantity - 1)">−</button>
-                            <span class="mx-2">@item.Quantity</span>
-                            <button class="btn btn-sm btn-outline-secondary btn-qty" data-cartid="@item.CartId" data-qty="@(item.Quantity + 1)">+</button>
+                            <button class="qty-btn btn-qty" data-cartid="@item.CartId" data-qty="@(item.Quantity - 1)">−</button>
+                            <span class="qty-val">@item.Quantity</span>
+                            <button class="qty-btn btn-qty" data-cartid="@item.CartId" data-qty="@(item.Quantity + 1)">+</button>
                         </td>
-                        <td>@item.TotalPrice.ToString("N2") ₽</td>
-                        <td><button class="btn btn-sm btn-danger btn-remove" data-cartid="@item.CartId">✖</button></td>
+                        <td style="font-weight: 800; color: #8a6f75; font-size: 1.1rem;">@item.TotalPrice.ToString("N2") ₽</td>
+                        <td><button class="btn-remove btn-remove-item" data-cartid="@item.CartId">✖</button></td>
                     </tr>
                 }
             </tbody>
         </table>
 
-        <div class="text-end">
-            <h3>Итого: @Model.Sum(x => x.TotalPrice).ToString("N2") ₽</h3>
-            <p>(@Model.Sum(x => x.Quantity) позиций)</p>
-            <a asp-controller="Home" asp-action="Menu" class="btn btn-secondary">Продолжить покупки</a>
+        <div class="cart-total-box">
+            <div class="cart-total">Итого: @Model.Sum(x => x.TotalPrice).ToString("N2") ₽</div>
+            <div class="cart-count-text">@Model.Sum(x => x.Quantity) позиций</div>
+            <div class="mt-4">
+                <a asp-controller="Home" asp-action="Menu" class="btn-continue">← Продолжить покупки</a>
+                <button class="btn-checkout" id="btnCheckout">Оформить заказ</button>
+            </div>
         </div>
     }
 </div>
 
-<script src="~/js/cart.js"></script>
+@section Scripts {
+    <script src="~/js/cart.js"></script>
+}

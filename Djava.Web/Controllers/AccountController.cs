@@ -14,7 +14,6 @@ namespace Djava.Web.Controllers
             _repo = new UserPgRepository(DbConfig.ConnectionString);
         }
 
-        // GET: /Account/Register
         [HttpGet]
         public IActionResult Register()
         {
@@ -25,7 +24,6 @@ namespace Djava.Web.Controllers
             return View();
         }
 
-        // POST: /Account/Register
         [HttpPost]
         public IActionResult Register(RegisterModel model)
         {
@@ -79,7 +77,6 @@ namespace Djava.Web.Controllers
             return RedirectToAction("Login");
         }
 
-        // GET: /Account/Login
         [HttpGet]
         public IActionResult Login()
         {
@@ -90,7 +87,6 @@ namespace Djava.Web.Controllers
             return View();
         }
 
-        // POST: /Account/Login
         [HttpPost]
         public IActionResult Login(string login, string password)
         {
@@ -112,6 +108,10 @@ namespace Djava.Web.Controllers
                 HttpContext.Session.SetString("FullName", user?.FullName ?? "");
                 HttpContext.Session.SetString("Role", user?.Role.ToString() ?? "Client");
 
+                // СОХРАНЯЕМ ID КЛИЕНТА В СЕССИЮ
+                int clientId = _repo.GetClientIdByLogin(login);
+                HttpContext.Session.SetString("ClientId", clientId.ToString());
+
                 return RedirectToAction("Index", "Home");
             }
 
@@ -121,7 +121,6 @@ namespace Djava.Web.Controllers
             return View();
         }
 
-        // GET: /Account/Logout
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

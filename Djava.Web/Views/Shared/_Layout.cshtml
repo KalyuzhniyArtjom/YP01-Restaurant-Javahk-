@@ -1,24 +1,43 @@
-﻿<script>
-    function updateCartSummary() {
-        fetch('/Cart/GetSummary')
-            .then(response => response.json())
-            .then(data => {
-                const panel = document.getElementById('floating-cart');
-                const countEl = document.getElementById('cart-count');
-                const totalEl = document.getElementById('cart-total');
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Djava.Web</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Основной контент -->
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
 
-                // Проверка на null, чтобы анализатор не ругался
-                if (panel && countEl && totalEl) {
-                    if (data.TotalItems > 0) {
-                        countEl.textContent = data.TotalItems;
-                        totalEl.textContent = data.TotalAmount.toLocaleString('ru-RU');
-                        panel.classList.add('visible');
-                    } else {
-                        panel.classList.remove('visible');
-                    }
-                }
-            });
-    }
+    <!-- Плавающая панель корзины (HTML разметка) -->
+    <div id="floating-cart"
+         style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: #1a1a1a; color: white; padding: 15px 25px; border-radius: 50px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.3);"
+         onclick="window.location.href='/Cart/Index'">
+        
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span style="font-size: 1.5rem;">🛒</span>
+            <span style="font-weight: 600; font-size: 1.1rem;">Корзина (<span id="cart-count">0</span>)</span>
+        </div>
+        
+        <div style="font-size: 1.2rem; font-weight: 800; color: #b8a0a5;">
+            <span id="cart-total">0,00</span> ₽
+        </div>
+    </div>
 
-    document.addEventListener('DOMContentLoaded', updateCartSummary);
-</script>
+    <!-- Подключение скриптов -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- ВАЖНО: Подключаем внешний файл с логикой корзины -->
+    <script src="~/js/cart.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

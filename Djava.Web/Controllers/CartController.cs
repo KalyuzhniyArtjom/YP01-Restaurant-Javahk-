@@ -11,20 +11,15 @@ namespace Djava.Web.Controllers
 
         public CartController(IConfiguration configuration)
         {
-            string connStr = configuration.GetConnectionString("RestaurantDb");
+            string connStr = configuration.GetConnectionString("RestaurantDb")!;
             var context = new DbContext(connStr);
             _cartRepo = new CartPgRepository(context);
         }
 
         private int GetClientId()
         {
-            // Берем ID клиента из сессии. Если нет — возвращаем 1 (для теста)
-            var clientIdStr = HttpContext.Session.GetString("ClientId");
-            if (int.TryParse(clientIdStr, out int id))
-            {
-                return id;
-            }
-            return 1;
+            // ВРЕМЕННО: используем клиента с ID = 9 (из вашей таблицы "Клиенты")
+            return 9;
         }
 
         public IActionResult Index()
@@ -34,12 +29,12 @@ namespace Djava.Web.Controllers
             return View(items);
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult AddToCart(int dishId)
         {
             int clientId = GetClientId();
             _cartRepo.AddToCart(clientId, dishId);
-            return Ok();
+            return RedirectToAction("Menu", "Home");
         }
 
         [HttpPost]
