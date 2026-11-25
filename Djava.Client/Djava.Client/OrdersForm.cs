@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using DjavaLib.Data;
 using DjavaLib.Models;
@@ -12,57 +14,41 @@ namespace Djava.Client
         private readonly string _adminName;
         private readonly OrderFilter _filter;
         private readonly OrderListModel _model;
-
         private readonly DbContext _dbContext;
         private StatisticsForm _statsForm;
 
-        private string _sortColumn = "OrderDate";
-        private bool _ascending = false;
+        // Сортировка по номеру заказа (чтобы не прыгало)
+        private string _sortColumn = "OrderId";
+        private bool _ascending = true;
 
         public OrdersForm(string adminName)
         {
             InitializeComponent();
             _adminName = adminName;
-
             _dbContext = new DbContext(DbConfig.GetConnectionString());
             _orders = new OrderListRepository(_dbContext);
             _filter = new OrderFilter();
             _model = new OrderListModel();
-
+            this.dgvOrders.DataError += new DataGridViewDataErrorEventHandler(this.dgvOrders_DataError);
             LoadStatusFilter();
             LoadOrders();
         }
 
-        // --- ОТКРЫТИЕ ФОРМЫ СТАТИСТИКИ ---
         private void lblStatisticsLink_Click(object sender, EventArgs e)
         {
-            if (_statsForm != null && !_statsForm.IsDisposed)
-            {
-                _statsForm.Activate();
-                return;
-            }
-
+            if (_statsForm != null && !_statsForm.IsDisposed) { _statsForm.Activate(); return; }
             _statsForm = new StatisticsForm(_dbContext);
-
             lblStatisticsLink.ForeColor = Color.White;
             lblOrdersLink.ForeColor = Color.Gray;
-
             _statsForm.ShowDialog();
-
             _statsForm = null;
-
             lblOrdersLink.ForeColor = Color.White;
             lblStatisticsLink.ForeColor = Color.Gray;
         }
 
         private void lblOrdersLink_Click(object sender, EventArgs e)
         {
-            if (_statsForm != null && !_statsForm.IsDisposed)
-            {
-                _statsForm.Close();
-                _statsForm = null;
-            }
-
+            if (_statsForm != null && !_statsForm.IsDisposed) { _statsForm.Close(); _statsForm = null; }
             lblOrdersLink.ForeColor = Color.White;
             lblStatisticsLink.ForeColor = Color.Gray;
         }
@@ -78,10 +64,8 @@ namespace Djava.Client
             cmbStatusFilter.Items.Add(new StatusFilterItem("Доставляется", OrderStatus.Delivering));
             cmbStatusFilter.Items.Add(new StatusFilterItem("Выполнен", OrderStatus.Completed));
             cmbStatusFilter.Items.Add(new StatusFilterItem("Отменён", OrderStatus.Cancelled));
-
             cmbStatusFilter.DisplayMember = "DisplayName";
             cmbStatusFilter.SelectedIndex = 0;
-
             cmbStatusFilter.SelectedIndexChanged += cmbStatusFilter_SelectedIndexChanged;
         }
 
@@ -90,105 +74,70 @@ namespace Djava.Client
             try
             {
                 _model.Orders = _orders.GetOrders(_filter);
-
                 var result = _model.ApplyFilterAndSort(_filter, _sortColumn, _ascending);
 
                 dgvOrders.DataSource = null;
-                dgvOrders.DataSource = result;
-
-                if (dgvOrders.Columns["OrderId"] != null)
-                    dgvOrders.Columns["OrderId"].HeaderText = "№";
-
-                if (dgvOrders.Columns["OrderDate"] != null)
-                {
-                    dgvOrders.Columns["OrderDate"].HeaderText = "Дата";
-                    dgvOrders.Columns["OrderDate"].DefaultCellStyle.Format = "dd.MM.yyyy HH:mm";
-                }
-
-                if (dgvOrders.Columns["ClientName"] != null)
-                    dgvOrders.Columns["ClientName"].HeaderText = "Покупатель";
-
-                if (dgvOrders.Columns["ClientContact"] != null)
-                    dgvOrders.Columns["ClientContact"].HeaderText = "Контакты";
-
-                if (dgvOrders.Columns["DeliveryMethod"] != null)
-                    dgvOrders.Columns["DeliveryMethod"].HeaderText = "Способ получения";
-
-                if (dgvOrders.Columns["Status"] != null)
-                    dgvOrders.Columns["Status"].HeaderText = "Статус";
-
-                if (dgvOrders.Columns["TotalAmount"] != null)
-                {
-                    dgvOrders.Columns["TotalAmount"].HeaderText = "Сумма";
-                    dgvOrders.Columns["TotalAmount"].DefaultCellStyle.Format = "N2";
-                }
-
-                // === НАСТРОЙКА РЕДАКТИРОВАНИЯ КОЛОНОК ===
+                dgvOrders.Columns.Clear();
+                dgvOrders.AutoGenerateColumns = false;
+                dgvOrders.AllowUserToAddRows = false;
                 dgvOrders.ReadOnly = false;
 
-                // Разрешаем редактировать
-                if (dgvOrders.Columns["ClientName"] != null) dgvOrders.Columns["ClientName"].ReadOnly = false;
-                if (dgvOrders.Columns["ClientContact"] != null) dgvOrders.Columns["ClientContact"].ReadOnly = false;
-                if (dgvOrders.Columns["DeliveryMethod"] != null) dgvOrders.Columns["DeliveryMethod"].ReadOnly = false;
-                if (dgvOrders.Columns["Status"] != null) dgvOrders.Columns["Status"].ReadOnly = false;
+                dgvOrders.Columns.Add(new DataGridViewTextBoxColumn { Name = "OrderId", HeaderText = "№", DataPropertyName = "OrderId", ReadOnly = true });
+                dgvOrders.Columns.Add(new DataGridViewTextBoxColumn { Name = "OrderDate", HeaderText = "Дата", DataPropertyName = "OrderDate", ReadOnly = true, DefaultCellStyle = new DataGridViewCellStyle { Format = "dd.MM.yyyy HH:mm" } });
+                dgvOrders.Columns.Add(new DataGridViewTextBoxColumn { Name = "ClientName", HeaderText = "Покупатель", DataPropertyName = "ClientName", ReadOnly = false });
+                dgvOrders.Columns.Add(new DataGridViewTextBoxColumn { Name = "ClientContact", HeaderText = "Контакты", DataPropertyName = "ClientContact", ReadOnly = false });
 
-                // Запрещаем редактировать (только для чтения)
-                if (dgvOrders.Columns["OrderId"] != null) dgvOrders.Columns["OrderId"].ReadOnly = true;
-                if (dgvOrders.Columns["OrderDate"] != null) dgvOrders.Columns["OrderDate"].ReadOnly = true;
-                if (dgvOrders.Columns["TotalAmount"] != null) dgvOrders.Columns["TotalAmount"].ReadOnly = true;
+                var deliveryColumn = new DataGridViewComboBoxColumn
+                {
+                    Name = "DeliveryMethod",
+                    HeaderText = "Способ получения",
+                    ReadOnly = false,
+                    DataSource = new List<string> { "Доставка", "Самовывоз" },
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
+                };
+                dgvOrders.Columns.Add(deliveryColumn);
 
+                var statusColumn = new DataGridViewComboBoxColumn
+                {
+                    Name = "Status",
+                    HeaderText = "Статус",
+                    ReadOnly = false,
+                    DataSource = new List<string> { "Новый", "Принят", "Готовится", "Готов", "Доставляется", "Выполнен", "Отменён" },
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
+                };
+                dgvOrders.Columns.Add(statusColumn);
+
+                dgvOrders.Columns.Add(new DataGridViewTextBoxColumn { Name = "TotalAmount", HeaderText = "Сумма", DataPropertyName = "TotalAmount", ReadOnly = true, DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+
+                dgvOrders.DataSource = result;
+
+                for (int i = 0; i < dgvOrders.Rows.Count; i++)
+                {
+                    if (i < result.Count)
+                    {
+                        dgvOrders.Rows[i].Cells["DeliveryMethod"].Value = result[i].DeliveryMethod == DeliveryType.Delivery ? "Доставка" : "Самовывоз";
+                        dgvOrders.Rows[i].Cells["Status"].Value = GetStatusText(result[i].Status);
+                    }
+                }
                 lblStatus.Text = "Всего заказов: " + result.Count;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка загрузки данных: " + ex.Message, "Ошибка",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                dgvOrders.DataSource = null;
-                lblStatus.Text = "Ошибка загрузки данных";
+                MessageBox.Show("Ошибка загрузки данных: " + ex.Message);
             }
         }
 
-        private void dgvOrders_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
-
-            var row = dgvOrders.Rows[e.RowIndex];
-            if (row.DataBoundItem == null) return;
-
-            var order = row.DataBoundItem as Order;
-            if (order == null) return;
-
-            string columnName = dgvOrders.Columns[e.ColumnIndex].Name;
-
-            if (columnName == "DeliveryMethod")
-            {
-                e.Value = GetDeliveryText(order.DeliveryMethod);
-                e.FormattingApplied = true;
-            }
-            else if (columnName == "Status")
-            {
-                e.Value = GetStatusText(order.Status);
-                e.FormattingApplied = true;
-            }
-        }
+        private void dgvOrders_DataError(object sender, DataGridViewDataErrorEventArgs e) { e.ThrowException = false; }
 
         private void cmbStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
             var item = cmbStatusFilter.SelectedItem as StatusFilterItem;
-            if (item != null)
-            {
-                _filter.Status = item.Value;
-                LoadOrders();
-            }
+            if (item != null) { _filter.Status = item.Value; LoadOrders(); }
         }
 
         private void btnResetFilter_Click(object sender, EventArgs e)
         {
-            _filter.Reset();
-            cmbStatusFilter.SelectedIndex = 0;
-            _sortColumn = "OrderDate";
-            _ascending = false;
-            LoadOrders();
+            _filter.Reset(); cmbStatusFilter.SelectedIndex = 0; _sortColumn = "OrderId"; _ascending = true; LoadOrders();
         }
 
         private void dgvOrders_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -196,61 +145,26 @@ namespace Djava.Client
             if (e.RowIndex == -1)
             {
                 string columnName = dgvOrders.Columns[e.ColumnIndex].Name;
-
-                if (_sortColumn == columnName)
-                {
-                    if (!_ascending) _ascending = true;
-                    else
-                    {
-                        _sortColumn = "OrderDate";
-                        _ascending = false;
-                    }
-                }
-                else
-                {
-                    _sortColumn = columnName;
-                    _ascending = true;
-                }
-
+                if (_sortColumn == columnName) { if (!_ascending) _ascending = true; else { _sortColumn = "OrderId"; _ascending = true; } }
+                else { _sortColumn = columnName; _ascending = true; }
                 LoadOrders();
             }
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-            LoadOrders();
-        }
-
-        private void btnLogout_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+        private void btnRefresh_Click(object sender, EventArgs e) { LoadOrders(); }
+        private void btnLogout_Click(object sender, EventArgs e) { this.Close(); }
 
         private void dgvOrders_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
-
             try
             {
                 int orderId = Convert.ToInt32(dgvOrders.Rows[e.RowIndex].Cells["OrderId"].Value);
                 var detailsForm = new OrderDetailsForm(_orders, orderId);
                 detailsForm.ShowDialog();
+                LoadOrders(); // Обновляем сумму после изменения состава
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка открытия состава заказа: " + ex.Message,
-                                "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private string GetDeliveryText(DeliveryType type)
-        {
-            switch (type)
-            {
-                case DeliveryType.Pickup: return "Самовывоз";
-                case DeliveryType.Delivery: return "Доставка";
-                default: return "";
-            }
+            catch (Exception ex) { MessageBox.Show("Ошибка: " + ex.Message); }
         }
 
         private string GetStatusText(OrderStatus status)
@@ -283,88 +197,31 @@ namespace Djava.Client
             }
         }
 
+        private DeliveryType ParseDelivery(string value) => value == "Доставка" ? DeliveryType.Delivery : DeliveryType.Pickup;
+
         private string _lastColumn = null;
         private int _clickCount = 0;
 
         private void dgvOrders_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             string columnName = dgvOrders.Columns[e.ColumnIndex].Name;
-
-            if (_lastColumn == columnName)
-            {
-                _clickCount++;
-            }
-            else
-            {
-                _lastColumn = columnName;
-                _clickCount = 1;
-            }
-
+            if (_lastColumn == columnName) _clickCount++; else { _lastColumn = columnName; _clickCount = 1; }
             switch (_clickCount)
             {
-                case 1:
-                    _sortColumn = columnName;
-                    _ascending = true;
-                    break;
-                case 2:
-                    _sortColumn = columnName;
-                    _ascending = false;
-                    break;
-                default:
-                    _sortColumn = "OrderDate";
-                    _ascending = false;
-                    _lastColumn = null;
-                    _clickCount = 0;
-                    break;
+                case 1: _sortColumn = columnName; _ascending = true; break;
+                case 2: _sortColumn = columnName; _ascending = false; break;
+                default: _sortColumn = "OrderId"; _ascending = true; _lastColumn = null; _clickCount = 0; break;
             }
-
             LoadOrders();
         }
 
-        // --- ОБРАБОТЧИК КНОПКИ "СОХРАНИТЬ ИЗМЕНЕНИЯ" ---
+        // --- СОХРАНЕНИЕ ---
         private void btnSaveChanges_Click(object sender, EventArgs e)
         {
-            if (dgvOrders.Rows.Count == 0)
-            {
-                MessageBox.Show("Нет данных для сохранения.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (dgvOrders.Rows.Count == 0) return;
 
-            bool hasErrors = false;
-
-            foreach (DataGridViewRow row in dgvOrders.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                string clientName = row.Cells["ClientName"].Value?.ToString();
-                string clientContact = row.Cells["ClientContact"].Value?.ToString();
-
-                if (string.IsNullOrWhiteSpace(clientName))
-                {
-                    row.Cells["ClientName"].Style.BackColor = Color.LightCoral;
-                    hasErrors = true;
-                }
-                else
-                {
-                    row.Cells["ClientName"].Style.BackColor = Color.White;
-                }
-
-                if (string.IsNullOrWhiteSpace(clientContact))
-                {
-                    row.Cells["ClientContact"].Style.BackColor = Color.LightCoral;
-                    hasErrors = true;
-                }
-                else
-                {
-                    row.Cells["ClientContact"].Style.BackColor = Color.White;
-                }
-            }
-
-            if (hasErrors)
-            {
-                MessageBox.Show("Заполните ФИО и Контакты для всех заказов!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            // Принудительно завершаем редактирование ячейки
+            dgvOrders.EndEdit();
 
             int updatedCount = 0;
             try
@@ -374,11 +231,11 @@ namespace Djava.Client
                     if (row.IsNewRow) continue;
 
                     int orderId = Convert.ToInt32(row.Cells["OrderId"].Value);
-                    string name = row.Cells["ClientName"].Value.ToString();
-                    string phone = row.Cells["ClientContact"].Value.ToString();
+                    string name = row.Cells["ClientName"].Value?.ToString() ?? "";
+                    string phone = row.Cells["ClientContact"].Value?.ToString() ?? "";
 
                     string deliveryStr = row.Cells["DeliveryMethod"].Value?.ToString() ?? "Самовывоз";
-                    DeliveryType delivery = deliveryStr == "Доставка" ? DeliveryType.Delivery : DeliveryType.Pickup;
+                    DeliveryType delivery = ParseDelivery(deliveryStr);
 
                     string statusStr = row.Cells["Status"].Value?.ToString() ?? "Новый";
                     OrderStatus status = ParseStatus(statusStr);
@@ -389,7 +246,9 @@ namespace Djava.Client
                     }
                 }
 
-                MessageBox.Show($"Успешно обновлено заказов: {updatedCount}", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Успешно обновлено: {updatedCount} заказов!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // Перезагружаем таблицу, чтобы подтянуть актуальные суммы (сортировка по OrderId, поэтому не прыгает)
                 LoadOrders();
             }
             catch (Exception ex)

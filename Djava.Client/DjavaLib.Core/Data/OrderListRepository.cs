@@ -21,32 +21,21 @@ namespace DjavaLib.Data
             using (var conn = _context.CreateConnection())
             {
                 conn.Open();
-
                 var sql = @"
-                    SELECT з.""ID_Заказа"",
-                           з.""Дата_Оформления"",
-                           к.""Фамилия"" || ' ' || к.""Имя"",
+                    SELECT з.""ID_Заказа"", з.""Дата_Оформления"", 
+                           з.""Фамилия"" || ' ' || з.""Имя"",
                            COALESCE(к.""Телефон"", к.""Email"", ''),
-                           з.""Способ_Получения"",
-                           ст.""Наименование"",
-                           з.""Сумма_Заказа""
+                           з.""Способ_Получения"", ст.""Наименование"", з.""Сумма_Заказа""
                     FROM ""Заказы"" з
-                    JOIN ""Клиенты"" к ON з.""ID_Клиента"" = к.""ID_Клиента""
+                    LEFT JOIN ""Клиенты"" к ON з.""ID_Клиента"" = к.""ID_Клиента""
                     JOIN ""Статусы_Заказа"" ст ON з.""ID_Статуса"" = ст.""ID_Статуса""";
 
-                if (filter != null && filter.Status != null)
-                {
-                    sql += " WHERE з.\"ID_Статуса\" = @statusId";
-                }
-
+                if (filter != null && filter.Status != null) sql += " WHERE з.\"ID_Статуса\" = @statusId";
                 sql += " ORDER BY з.\"Дата_Оформления\" DESC";
 
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    if (filter != null && filter.Status != null)
-                    {
-                        cmd.Parameters.AddWithValue("@statusId", GetStatusId(filter.Status.Value));
-                    }
+                    if (filter != null && filter.Status != null) cmd.Parameters.AddWithValue("@statusId", GetStatusId(filter.Status.Value));
 
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -66,23 +55,17 @@ namespace DjavaLib.Data
                     }
                 }
             }
-
             return result;
         }
 
         public List<OrderItem> GetOrderItems(int orderId)
         {
             var result = new List<OrderItem>();
-
             using (var conn = _context.CreateConnection())
             {
                 conn.Open();
-
                 var sql = @"
-                    SELECT б.""ID_Блюда"",
-                           б.""Наименование"",
-                           пз.""Количество"",
-                           пз.""Цена_За_Единицу""
+                    SELECT б.""ID_Блюда"", б.""Наименование"", пз.""Количество"", пз.""Цена_За_Единицу""
                     FROM ""Позиции_Заказа"" пз
                     JOIN ""Блюда"" б ON пз.""ID_Блюда"" = б.""ID_Блюда""
                     WHERE пз.""ID_Заказа"" = @orderId";
@@ -90,7 +73,6 @@ namespace DjavaLib.Data
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@orderId", orderId);
-
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -106,7 +88,6 @@ namespace DjavaLib.Data
                     }
                 }
             }
-
             return result;
         }
 
@@ -115,9 +96,7 @@ namespace DjavaLib.Data
             using (var conn = _context.CreateConnection())
             {
                 conn.Open();
-
                 var sql = "UPDATE \"Заказы\" SET \"ID_Статуса\" = @statusId WHERE \"ID_Заказа\" = @orderId";
-
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@statusId", GetStatusId(status));
@@ -127,12 +106,8 @@ namespace DjavaLib.Data
             }
         }
 
-        // ==================== НОВЫЕ МЕТОДЫ ДЛЯ 5 ЗАДАЧИ ====================
-
-        // 1. Метод для обновления данных клиента и заказа (Форма "Список заказов")
         public bool UpdateOrderDetails(int orderId, string clientName, string clientContact, DeliveryType delivery, OrderStatus status)
         {
-            // Разделяем ФИО на Фамилию и Имя
             string[] nameParts = clientName.Trim().Split(new char[] { ' ' }, 2);
             string lastName = nameParts.Length > 0 ? nameParts[0] : "";
             string firstName = nameParts.Length > 1 ? nameParts[1] : "";
@@ -144,27 +119,24 @@ namespace DjavaLib.Data
                 {
                     try
                     {
-                        // Обновляем данные клиента
-                        string sqlClient = @"UPDATE ""Клиенты"" 
-                                             SET ""Фамилия"" = @last, ""Имя"" = @first, ""Телефон"" = @phone 
-                                             WHERE ""ID_Клиента"" = (SELECT ""ID_Клиента"" FROM ""Заказы"" WHERE ""ID_Заказа"" = @id)";
-                        using (var cmd = new NpgsqlCommand(sqlClient, conn, transaction))
+                        string sqlOrder = @"UPDATE ""Заказы"" 
+                                            SET ""Фамилия"" = @last, ""Имя"" = @first, ""ID_Статуса"" = @status, ""Способ_Получения"" = @delivery 
+                                            WHERE ""ID_Заказа"" = @id";
+                        using (var cmd = new NpgsqlCommand(sqlOrder, conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@last", lastName);
                             cmd.Parameters.AddWithValue("@first", firstName);
-                            cmd.Parameters.AddWithValue("@phone", clientContact);
+                            cmd.Parameters.AddWithValue("@status", GetStatusId(status));
+                            cmd.Parameters.AddWithValue("@delivery", delivery == DeliveryType.Delivery ? "Доставка" : "Самовывоз");
                             cmd.Parameters.AddWithValue("@id", orderId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        // Обновляем данные заказа
-                        string sqlOrder = @"UPDATE ""Заказы"" 
-                                            SET ""ID_Статуса"" = @status, ""Способ_Получения"" = @delivery 
-                                            WHERE ""ID_Заказа"" = @id";
-                        using (var cmd = new NpgsqlCommand(sqlOrder, conn, transaction))
+                        string sqlClient = @"UPDATE ""Клиенты"" SET ""Телефон"" = @phone 
+                                             WHERE ""ID_Клиента"" = (SELECT ""ID_Клиента"" FROM ""Заказы"" WHERE ""ID_Заказа"" = @id)";
+                        using (var cmd = new NpgsqlCommand(sqlClient, conn, transaction))
                         {
-                            cmd.Parameters.AddWithValue("@status", GetStatusId(status));
-                            cmd.Parameters.AddWithValue("@delivery", delivery == DeliveryType.Delivery ? "Доставка" : "Самовывоз");
+                            cmd.Parameters.AddWithValue("@phone", clientContact);
                             cmd.Parameters.AddWithValue("@id", orderId);
                             cmd.ExecuteNonQuery();
                         }
@@ -172,16 +144,15 @@ namespace DjavaLib.Data
                         transaction.Commit();
                         return true;
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         transaction.Rollback();
-                        return false;
+                        throw new Exception("Ошибка БД: " + ex.Message);
                     }
                 }
             }
         }
 
-        // 2. Метод для получения всех блюд (для выпадающего списка в форме состава)
         public List<Dish> GetAvailableDishes()
         {
             var result = new List<Dish>();
@@ -206,7 +177,6 @@ namespace DjavaLib.Data
             return result;
         }
 
-        // 3. Метод для сохранения нового состава заказа (Форма "Состав заказа")
         public bool UpdateOrderItems(int orderId, List<OrderItem> newItems, decimal newTotalAmount)
         {
             using (var conn = _context.CreateConnection())
@@ -216,7 +186,6 @@ namespace DjavaLib.Data
                 {
                     try
                     {
-                        // Удаляем старые позиции
                         string sqlDelete = @"DELETE FROM ""Позиции_Заказа"" WHERE ""ID_Заказа"" = @id";
                         using (var cmd = new NpgsqlCommand(sqlDelete, conn, transaction))
                         {
@@ -224,7 +193,6 @@ namespace DjavaLib.Data
                             cmd.ExecuteNonQuery();
                         }
 
-                        // Вставляем новые позиции
                         foreach (var item in newItems)
                         {
                             string sqlInsert = @"INSERT INTO ""Позиции_Заказа"" (""ID_Заказа"", ""ID_Блюда"", ""Количество"", ""Цена_За_Единицу"", ""Сумма"") 
@@ -240,7 +208,6 @@ namespace DjavaLib.Data
                             }
                         }
 
-                        // Обновляем итоговую сумму в заказе
                         string sqlUpdateOrder = @"UPDATE ""Заказы"" SET ""Сумма_Заказа"" = @total WHERE ""ID_Заказа"" = @id";
                         using (var cmd = new NpgsqlCommand(sqlUpdateOrder, conn, transaction))
                         {
@@ -252,16 +219,14 @@ namespace DjavaLib.Data
                         transaction.Commit();
                         return true;
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         transaction.Rollback();
-                        return false;
+                        throw new Exception("Ошибка сохранения состава: " + ex.Message);
                     }
                 }
             }
         }
-
-        // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
 
         private DeliveryType ParseDeliveryType(string value)
         {
@@ -286,17 +251,31 @@ namespace DjavaLib.Data
 
         private int GetStatusId(OrderStatus status)
         {
+            string statusName = "";
             switch (status)
             {
-                case OrderStatus.New: return 1;
-                case OrderStatus.Accepted: return 2;
-                case OrderStatus.Cooking: return 3;
-                case OrderStatus.Ready: return 4;
-                case OrderStatus.Delivering: return 5;
-                case OrderStatus.Completed: return 6;
-                case OrderStatus.Cancelled: return 7;
-                default: return 1;
+                case OrderStatus.New: statusName = "Новый"; break;
+                case OrderStatus.Accepted: statusName = "Принят"; break;
+                case OrderStatus.Cooking: statusName = "Готовится"; break;
+                case OrderStatus.Ready: statusName = "Готов"; break;
+                case OrderStatus.Delivering: statusName = "Доставляется"; break;
+                case OrderStatus.Completed: statusName = "Выполнен"; break;
+                case OrderStatus.Cancelled: statusName = "Отменён"; break;
             }
+
+            using (var conn = _context.CreateConnection())
+            {
+                conn.Open();
+                string sql = "SELECT \"ID_Статуса\" FROM \"Статусы_Заказа\" WHERE \"Наименование\" = @name LIMIT 1";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@name", statusName);
+                    var result = cmd.ExecuteScalar();
+                    if (result != null)
+                        return Convert.ToInt32(result);
+                }
+            }
+            return 1;
         }
     }
 }
