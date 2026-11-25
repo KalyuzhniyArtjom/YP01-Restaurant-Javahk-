@@ -1,0 +1,56 @@
+﻿@model List<DjavaLib.Models.CartItem>
+@{
+    ViewData["Title"] = "Корзина";
+}
+
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4">Корзина</h1>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <h3>Ваша корзина пуста 😢</h3>
+            <a asp-controller="Home" asp-action="Menu" class="btn btn-primary mt-3">Перейти в меню</a>
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Фото</th>
+                    <th>Название</th>
+                    <th>Цена</th>
+                    <th>Количество</th>
+                    <th>Сумма</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><img src="@item.PhotoPath" width="60" class="cart-img" data-fallback="/images/no-photo.png" /></td>
+                        <td>@item.DishName</td>
+                        <td>@item.Price.ToString("N2") ₽</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary btn-qty" data-cartid="@item.CartId" data-qty="@(item.Quantity - 1)">−</button>
+                            <span class="mx-2">@item.Quantity</span>
+                            <button class="btn btn-sm btn-outline-secondary btn-qty" data-cartid="@item.CartId" data-qty="@(item.Quantity + 1)">+</button>
+                        </td>
+                        <td>@item.TotalPrice.ToString("N2") ₽</td>
+                        <td><button class="btn btn-sm btn-danger btn-remove" data-cartid="@item.CartId">✖</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end">
+            <h3>Итого: @Model.Sum(x => x.TotalPrice).ToString("N2") ₽</h3>
+            <p>(@Model.Sum(x => x.Quantity) позиций)</p>
+            <a asp-controller="Home" asp-action="Menu" class="btn btn-secondary">Продолжить покупки</a>
+        </div>
+    }
+</div>
+
+<script src="~/js/cart.js"></script>
