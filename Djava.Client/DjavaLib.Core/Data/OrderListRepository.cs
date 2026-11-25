@@ -22,8 +22,6 @@ namespace DjavaLib.Data
             {
                 conn.Open();
 
-                // ИЗМЕНЕНО: Сумма берется из таблицы "Заказы" (поле "Сумма_Заказа"),
-                // убран LEFT JOIN с "Позиции_Заказа" и GROUP BY
                 var sql = @"
                     SELECT з.""ID_Заказа"",
                            з.""Дата_Оформления"",
@@ -62,7 +60,7 @@ namespace DjavaLib.Data
                                 ClientContact = reader.GetString(3),
                                 DeliveryMethod = ParseDeliveryType(reader.GetString(4)),
                                 Status = ParseOrderStatus(reader.GetString(5)),
-                                TotalAmount = reader.GetDecimal(6) // Теперь тут реальная сумма
+                                TotalAmount = reader.GetDecimal(6)
                             });
                         }
                     }
@@ -128,6 +126,142 @@ namespace DjavaLib.Data
                 }
             }
         }
+
+        // ==================== НОВЫЕ МЕТОДЫ ДЛЯ 5 ЗАДАЧИ ====================
+
+        // 1. Метод для обновления данных клиента и заказа (Форма "Список заказов")
+        public bool UpdateOrderDetails(int orderId, string clientName, string clientContact, DeliveryType delivery, OrderStatus status)
+        {
+            // Разделяем ФИО на Фамилию и Имя
+            string[] nameParts = clientName.Trim().Split(new char[] { ' ' }, 2);
+            string lastName = nameParts.Length > 0 ? nameParts[0] : "";
+            string firstName = nameParts.Length > 1 ? nameParts[1] : "";
+
+            using (var conn = _context.CreateConnection())
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Обновляем данные клиента
+                        string sqlClient = @"UPDATE ""Клиенты"" 
+                                             SET ""Фамилия"" = @last, ""Имя"" = @first, ""Телефон"" = @phone 
+                                             WHERE ""ID_Клиента"" = (SELECT ""ID_Клиента"" FROM ""Заказы"" WHERE ""ID_Заказа"" = @id)";
+                        using (var cmd = new NpgsqlCommand(sqlClient, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@last", lastName);
+                            cmd.Parameters.AddWithValue("@first", firstName);
+                            cmd.Parameters.AddWithValue("@phone", clientContact);
+                            cmd.Parameters.AddWithValue("@id", orderId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Обновляем данные заказа
+                        string sqlOrder = @"UPDATE ""Заказы"" 
+                                            SET ""ID_Статуса"" = @status, ""Способ_Получения"" = @delivery 
+                                            WHERE ""ID_Заказа"" = @id";
+                        using (var cmd = new NpgsqlCommand(sqlOrder, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@status", GetStatusId(status));
+                            cmd.Parameters.AddWithValue("@delivery", delivery == DeliveryType.Delivery ? "Доставка" : "Самовывоз");
+                            cmd.Parameters.AddWithValue("@id", orderId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // 2. Метод для получения всех блюд (для выпадающего списка в форме состава)
+        public List<Dish> GetAvailableDishes()
+        {
+            var result = new List<Dish>();
+            using (var conn = _context.CreateConnection())
+            {
+                conn.Open();
+                string sql = "SELECT \"ID_Блюда\", \"Наименование\", \"Цена\" FROM \"Блюда\" WHERE \"Признак_Доступности\" = TRUE ORDER BY \"Наименование\"";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        result.Add(new Dish
+                        {
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Price = reader.GetDecimal(2)
+                        });
+                    }
+                }
+            }
+            return result;
+        }
+
+        // 3. Метод для сохранения нового состава заказа (Форма "Состав заказа")
+        public bool UpdateOrderItems(int orderId, List<OrderItem> newItems, decimal newTotalAmount)
+        {
+            using (var conn = _context.CreateConnection())
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Удаляем старые позиции
+                        string sqlDelete = @"DELETE FROM ""Позиции_Заказа"" WHERE ""ID_Заказа"" = @id";
+                        using (var cmd = new NpgsqlCommand(sqlDelete, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@id", orderId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Вставляем новые позиции
+                        foreach (var item in newItems)
+                        {
+                            string sqlInsert = @"INSERT INTO ""Позиции_Заказа"" (""ID_Заказа"", ""ID_Блюда"", ""Количество"", ""Цена_За_Единицу"", ""Сумма"") 
+                                                 VALUES (@orderId, @dishId, @qty, @price, @sum)";
+                            using (var cmd = new NpgsqlCommand(sqlInsert, conn, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("@orderId", orderId);
+                                cmd.Parameters.AddWithValue("@dishId", item.DishId);
+                                cmd.Parameters.AddWithValue("@qty", item.Quantity);
+                                cmd.Parameters.AddWithValue("@price", item.Price);
+                                cmd.Parameters.AddWithValue("@sum", item.Price * item.Quantity);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        // Обновляем итоговую сумму в заказе
+                        string sqlUpdateOrder = @"UPDATE ""Заказы"" SET ""Сумма_Заказа"" = @total WHERE ""ID_Заказа"" = @id";
+                        using (var cmd = new NpgsqlCommand(sqlUpdateOrder, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@total", newTotalAmount);
+                            cmd.Parameters.AddWithValue("@id", orderId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
 
         private DeliveryType ParseDeliveryType(string value)
         {
