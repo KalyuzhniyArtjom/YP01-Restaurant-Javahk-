@@ -17,7 +17,7 @@
 
     /* --- Стили для логотипа в навбаре --- */
     .navbar-brand img {
-        height: 45px; /* Высота логотипа в шапке */
+        height: 45px;
         width: auto;
         margin-right: 10px;
         vertical-align: middle;
@@ -287,7 +287,7 @@
             Джавахк
         </a>
 
-        <ul class="navbar-nav">
+        <ul class="navbar-nav mx-auto">
             <li class="nav-item">
                 <a class="nav-link active" asp-controller="Home" asp-action="Index">Главная</a>
             </li>
@@ -295,7 +295,15 @@
                 <a class="nav-link" asp-controller="Home" asp-action="Menu">Меню</a>
             </li>
         </ul>
-        <div class="d-flex align-items-center">
+
+        <div class="d-flex align-items-center gap-3">
+            <!-- ИКОНКА КОРЗИНЫ В ШАПКЕ -->
+            <a asp-controller="Cart" asp-action="Index" class="text-white position-relative" title="Корзина">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cart3" viewBox="0 0 16 16">
+                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                </svg>
+            </a>
+
             @if (login == null)
             {
                 <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Login">
@@ -304,7 +312,7 @@
             }
             else
             {
-                <span class="text-light me-3">👤 @fullName</span>
+                <span class="text-light me-2 d-none d-md-block">👤 @fullName</span>
                 <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Logout">
                     Выйти
                 </a>
@@ -411,64 +419,3 @@
         }
     </div>
 </div>
-
-<!-- ОТЗЫВЫ -->
-<div class="container mt-5">
-    <h2 class="section-title">Отзывы наших гостей</h2>
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="review-card">
-                <div class="stars">★★★★★</div>
-                <p class="mt-2 mb-1">Очень вкусный плов, доставили быстро!</p>
-                <small class="text-muted">— Андрей Кузнецов, 15.09.2026</small>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="review-card">
-                <div class="stars">★★★★☆</div>
-                <p class="mt-2 mb-1">Всё понравилось, но лагман был слегка острым.</p>
-                <small class="text-muted">— Ольга Смирнова, 18.09.2026</small>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="review-card">
-                <div class="stars">★★★★★</div>
-                <p class="mt-2 mb-1">Фирменный салат — просто восторг!</p>
-                <small class="text-muted">— Пётр Иванов, 20.09.2026</small>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="review-card">
-                <div class="stars">★★★★★</div>
-                <p class="mt-2 mb-1">Обслуживание на высоте, обязательно вернусь.</p>
-                <small class="text-muted">— Мария Петрова, 22.09.2026</small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ПОДВАЛ -->
-<footer>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <h5>Ресторан «Джавахк»</h5>
-                <p class="small text-muted">Традиционная восточная и узбекская кухня. Готовим с душой для каждого гостя.</p>
-            </div>
-            <div class="col-md-4 mb-4">
-                <h5>Контакты</h5>
-                <p class="small mb-1 text-muted">📍 1-й переулок Металлистов, дом 3, Торжок</p>
-                <p class="small mb-1 text-muted">📞 +7 (910) 539-18-08</p>
-                <p class="small mb-1 text-muted">🕒 Ежедневно с 9:00 до 22:00</p>
-            </div>
-            <div class="col-md-4 mb-4">
-                <h5>Разделы</h5>
-                <p class="small mb-1"><a asp-controller="Home" asp-action="Index">🏠 Главная</a></p>
-                <p class="small mb-1"><a asp-controller="Home" asp-action="Menu">🍽 Меню</a></p>
-                <p class="small mb-0"><a asp-controller="Account" asp-action="Login">👤 Личный кабинет</a></p>
-            </div>
-        </div>
-        <hr style="border-color: #333;" />
-        <div class="text-center small text-muted">© 2026 Ресторан «Джавахк» · Все права защищены</div>
-    </div>
-</footer>

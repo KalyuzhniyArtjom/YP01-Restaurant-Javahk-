@@ -10,9 +10,17 @@ function updateCartSummary() {
 
             var countEl = document.getElementById('cart-count');
             var totalEl = document.getElementById('cart-total');
+            var floatingCart = document.getElementById('floating-cart'); // Получаем саму панель
 
             if (countEl) countEl.textContent = count.toString();
             if (totalEl) totalEl.textContent = Number(amount).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // ГЛАВНОЕ ИЗМЕНЕНИЕ: Показываем или скрываем панель
+            if (count > 0) {
+                floatingCart.style.display = 'flex';
+            } else {
+                floatingCart.style.display = 'none';
+            }
         })
         .catch(function (err) { console.error('Ошибка корзины:', err); });
 }
@@ -21,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 1. Запуск обновления панели при загрузке
     updateCartSummary();
 
-    // 2. Перехват кликов по кнопкам "Добавить в корзину" для мгновенного обновления панели
+    // 2. Перехват кликов по кнопкам "Добавить в корзину" (для мгновенного обновления панели)
     document.addEventListener('click', function (e) {
         var target = e.target;
         while (target && target !== document) {
@@ -37,8 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // 3. Ваша старая логика для кнопок +/- в корзине (из скриншота)
-    // Изменение количества
+    // 3. Логика кнопок +/- 
     document.querySelectorAll('.btn-qty').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const cartId = this.getAttribute('data-cartid');
@@ -50,14 +57,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cartId: parseInt(cartId), quantity: qty })
-            }).then(() => {
-                location.reload(); // Перезагружаем страницу после изменения
-                updateCartSummary(); // Или можно просто обновить панель без перезагрузки
-            });
+            }).then(() => location.reload());
         });
     });
 
-    // Удаление
+    // 4. Логика удаления
     document.querySelectorAll('.btn-remove-item').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const cartId = this.getAttribute('data-cartid');
@@ -66,17 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cartId: parseInt(cartId) })
-            }).then(() => {
-                location.reload();
-            });
+            }).then(() => location.reload());
         });
     });
-
-    // Оформление заказа (заглушка)
-    const checkoutBtn = document.getElementById('btnCheckout');
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', function () {
-            alert('Заказ успешно оформлен! (функция в разработке)');
-        });
-    }
 });
