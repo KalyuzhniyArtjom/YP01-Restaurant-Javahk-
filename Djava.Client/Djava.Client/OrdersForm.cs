@@ -13,8 +13,8 @@ namespace Djava.Client
         private readonly OrderFilter _filter;
         private readonly OrderListModel _model;
 
-        private readonly DbContext _dbContext; // Сохраняем контекст
-        private StatisticsForm _statsForm;     // Ссылка на форму статистики
+        private readonly DbContext _dbContext;
+        private StatisticsForm _statsForm;
 
         private string _sortColumn = "OrderDate";
         private bool _ascending = false;
@@ -24,16 +24,10 @@ namespace Djava.Client
             InitializeComponent();
             _adminName = adminName;
 
-            // Создаем контекст и сохраняем его в поле класса
             _dbContext = new DbContext(DbConfig.GetConnectionString());
-
             _orders = new OrderListRepository(_dbContext);
             _filter = new OrderFilter();
             _model = new OrderListModel();
-
-            // Разрешаем редактирование таблицы для 5-й задачи
-            dgvOrders.ReadOnly = false;
-            dgvOrders.EditMode = DataGridViewEditMode.EditOnEnter;
 
             LoadStatusFilter();
             LoadOrders();
@@ -42,43 +36,33 @@ namespace Djava.Client
         // --- ОТКРЫТИЕ ФОРМЫ СТАТИСТИКИ ---
         private void lblStatisticsLink_Click(object sender, EventArgs e)
         {
-            // Если форма уже открыта, просто активируем её
             if (_statsForm != null && !_statsForm.IsDisposed)
             {
                 _statsForm.Activate();
                 return;
             }
 
-            // Создаем и открываем форму статистики, передавая ей контекст
             _statsForm = new StatisticsForm(_dbContext);
 
-            // Визуально выделяем активную вкладку
             lblStatisticsLink.ForeColor = Color.White;
             lblOrdersLink.ForeColor = Color.Gray;
 
-            // Открываем как модальное окно (блокирует OrdersForm, пока не закроют)
             _statsForm.ShowDialog();
 
-            // ⚠️ ВАЖНО: После закрытия формы обнуляем ссылку,
-            // чтобы при следующем клике можно было создать новую форму.
             _statsForm = null;
 
-            // После закрытия формы статистики возвращаем цвета обратно
             lblOrdersLink.ForeColor = Color.White;
             lblStatisticsLink.ForeColor = Color.Gray;
         }
 
-        // --- КЛИК ПО "СПИСОК ЗАКАЗОВ" (если нужно вернуться) ---
         private void lblOrdersLink_Click(object sender, EventArgs e)
         {
-            // Если форма статистики открыта, закрываем её
             if (_statsForm != null && !_statsForm.IsDisposed)
             {
                 _statsForm.Close();
                 _statsForm = null;
             }
 
-            // Возвращаем цвета
             lblOrdersLink.ForeColor = Color.White;
             lblStatisticsLink.ForeColor = Color.Gray;
         }
@@ -138,6 +122,20 @@ namespace Djava.Client
                     dgvOrders.Columns["TotalAmount"].HeaderText = "Сумма";
                     dgvOrders.Columns["TotalAmount"].DefaultCellStyle.Format = "N2";
                 }
+
+                // === НАСТРОЙКА РЕДАКТИРОВАНИЯ КОЛОНОК ===
+                dgvOrders.ReadOnly = false;
+
+                // Разрешаем редактировать
+                if (dgvOrders.Columns["ClientName"] != null) dgvOrders.Columns["ClientName"].ReadOnly = false;
+                if (dgvOrders.Columns["ClientContact"] != null) dgvOrders.Columns["ClientContact"].ReadOnly = false;
+                if (dgvOrders.Columns["DeliveryMethod"] != null) dgvOrders.Columns["DeliveryMethod"].ReadOnly = false;
+                if (dgvOrders.Columns["Status"] != null) dgvOrders.Columns["Status"].ReadOnly = false;
+
+                // Запрещаем редактировать (только для чтения)
+                if (dgvOrders.Columns["OrderId"] != null) dgvOrders.Columns["OrderId"].ReadOnly = true;
+                if (dgvOrders.Columns["OrderDate"] != null) dgvOrders.Columns["OrderDate"].ReadOnly = true;
+                if (dgvOrders.Columns["TotalAmount"] != null) dgvOrders.Columns["TotalAmount"].ReadOnly = true;
 
                 lblStatus.Text = "Всего заказов: " + result.Count;
             }
@@ -323,10 +321,9 @@ namespace Djava.Client
             LoadOrders();
         }
 
-        // --- НОВЫЙ ОБРАБОТЧИК ДЛЯ КНОПКИ "СОХРАНИТЬ ИЗМЕНЕНИЯ" ---
+        // --- ОБРАБОТЧИК КНОПКИ "СОХРАНИТЬ ИЗМЕНЕНИЯ" ---
         private void btnSaveChanges_Click(object sender, EventArgs e)
         {
-            // 1. Проверяем, есть ли данные в таблице
             if (dgvOrders.Rows.Count == 0)
             {
                 MessageBox.Show("Нет данных для сохранения.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -335,7 +332,6 @@ namespace Djava.Client
 
             bool hasErrors = false;
 
-            // 2. Проверка на пустые поля (Валидация)
             foreach (DataGridViewRow row in dgvOrders.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -343,7 +339,6 @@ namespace Djava.Client
                 string clientName = row.Cells["ClientName"].Value?.ToString();
                 string clientContact = row.Cells["ClientContact"].Value?.ToString();
 
-                // Подсветка пустого ФИО
                 if (string.IsNullOrWhiteSpace(clientName))
                 {
                     row.Cells["ClientName"].Style.BackColor = Color.LightCoral;
@@ -354,7 +349,6 @@ namespace Djava.Client
                     row.Cells["ClientName"].Style.BackColor = Color.White;
                 }
 
-                // Подсветка пустого телефона
                 if (string.IsNullOrWhiteSpace(clientContact))
                 {
                     row.Cells["ClientContact"].Style.BackColor = Color.LightCoral;
@@ -366,14 +360,12 @@ namespace Djava.Client
                 }
             }
 
-            // Если нашли ошибки — останавливаем сохранение
             if (hasErrors)
             {
                 MessageBox.Show("Заполните ФИО и Контакты для всех заказов!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // 3. Сохранение в базу данных
             int updatedCount = 0;
             try
             {
@@ -385,14 +377,12 @@ namespace Djava.Client
                     string name = row.Cells["ClientName"].Value.ToString();
                     string phone = row.Cells["ClientContact"].Value.ToString();
 
-                    // Получаем способ получения и статус
                     string deliveryStr = row.Cells["DeliveryMethod"].Value?.ToString() ?? "Самовывоз";
                     DeliveryType delivery = deliveryStr == "Доставка" ? DeliveryType.Delivery : DeliveryType.Pickup;
 
                     string statusStr = row.Cells["Status"].Value?.ToString() ?? "Новый";
                     OrderStatus status = ParseStatus(statusStr);
 
-                    // Вызываем метод из репозитория
                     if (_orders.UpdateOrderDetails(orderId, name, phone, delivery, status))
                     {
                         updatedCount++;
@@ -400,7 +390,7 @@ namespace Djava.Client
                 }
 
                 MessageBox.Show($"Успешно обновлено заказов: {updatedCount}", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadOrders(); // Перезагружаем таблицу, чтобы увидеть свежие данные
+                LoadOrders();
             }
             catch (Exception ex)
             {

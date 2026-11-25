@@ -33,6 +33,9 @@
             this.dgvItems = new System.Windows.Forms.DataGridView();
             this.lblTotal = new System.Windows.Forms.Label();
             this.btnClose = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnAddDish = new System.Windows.Forms.Button();
+            this.btnRemoveDish = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
             this.SuspendLayout();
             // 
@@ -55,9 +58,9 @@
             this.dgvItems.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvItems.BackgroundColor = System.Drawing.Color.White;
             this.dgvItems.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvItems.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgvItems.Location = new System.Drawing.Point(15, 60);
             this.dgvItems.Name = "dgvItems";
-            this.dgvItems.ReadOnly = true;
             this.dgvItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvItems.Size = new System.Drawing.Size(655, 320);
             this.dgvItems.TabIndex = 1;
@@ -90,12 +93,63 @@
             this.btnClose.UseVisualStyleBackColor = false;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
+            // btnSave
+            // 
+            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.btnSave.FlatAppearance.BorderSize = 0;
+            this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSave.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnSave.ForeColor = System.Drawing.Color.White;
+            this.btnSave.Location = new System.Drawing.Point(455, 395);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(100, 30);
+            this.btnSave.TabIndex = 4;
+            this.btnSave.Text = "Сохранить";
+            this.btnSave.UseVisualStyleBackColor = false;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // btnAddDish
+            // 
+            this.btnAddDish.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddDish.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.btnAddDish.FlatAppearance.BorderSize = 0;
+            this.btnAddDish.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddDish.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnAddDish.ForeColor = System.Drawing.Color.White;
+            this.btnAddDish.Location = new System.Drawing.Point(425, 15);
+            this.btnAddDish.Name = "btnAddDish";
+            this.btnAddDish.Size = new System.Drawing.Size(130, 30);
+            this.btnAddDish.TabIndex = 5;
+            this.btnAddDish.Text = "Добавить блюдо";
+            this.btnAddDish.UseVisualStyleBackColor = false;
+            this.btnAddDish.Click += new System.EventHandler(this.btnAddDish_Click);
+            // 
+            // btnRemoveDish
+            // 
+            this.btnRemoveDish.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemoveDish.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.btnRemoveDish.FlatAppearance.BorderSize = 0;
+            this.btnRemoveDish.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemoveDish.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnRemoveDish.ForeColor = System.Drawing.Color.White;
+            this.btnRemoveDish.Location = new System.Drawing.Point(570, 15);
+            this.btnRemoveDish.Name = "btnRemoveDish";
+            this.btnRemoveDish.Size = new System.Drawing.Size(100, 30);
+            this.btnRemoveDish.TabIndex = 6;
+            this.btnRemoveDish.Text = "Удалить";
+            this.btnRemoveDish.UseVisualStyleBackColor = false;
+            this.btnRemoveDish.Click += new System.EventHandler(this.btnRemoveDish_Click);
+            // 
             // OrderDetailsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.MistyRose;
             this.ClientSize = new System.Drawing.Size(684, 461);
+            this.Controls.Add(this.btnRemoveDish);
+            this.Controls.Add(this.btnAddDish);
+            this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.lblTotal);
             this.Controls.Add(this.dgvItems);
@@ -117,5 +171,8 @@
         private System.Windows.Forms.DataGridView dgvItems;
         private System.Windows.Forms.Label lblTotal;
         private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnAddDish;
+        private System.Windows.Forms.Button btnRemoveDish;
     }
 }
