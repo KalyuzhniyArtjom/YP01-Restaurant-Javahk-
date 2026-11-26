@@ -17,7 +17,6 @@ namespace Djava.Client
         private readonly DbContext _dbContext;
         private StatisticsForm _statsForm;
 
-        // Сортировка по номеру заказа (чтобы не прыгало)
         private string _sortColumn = "OrderId";
         private bool _ascending = true;
 
@@ -119,6 +118,7 @@ namespace Djava.Client
                         dgvOrders.Rows[i].Cells["Status"].Value = GetStatusText(result[i].Status);
                     }
                 }
+
                 lblStatus.Text = "Всего заказов: " + result.Count;
             }
             catch (Exception ex)
@@ -162,7 +162,7 @@ namespace Djava.Client
                 int orderId = Convert.ToInt32(dgvOrders.Rows[e.RowIndex].Cells["OrderId"].Value);
                 var detailsForm = new OrderDetailsForm(_orders, orderId);
                 detailsForm.ShowDialog();
-                LoadOrders(); // Обновляем сумму после изменения состава
+                LoadOrders();
             }
             catch (Exception ex) { MessageBox.Show("Ошибка: " + ex.Message); }
         }
@@ -178,7 +178,7 @@ namespace Djava.Client
                 case OrderStatus.Delivering: return "Доставляется";
                 case OrderStatus.Completed: return "Выполнен";
                 case OrderStatus.Cancelled: return "Отменён";
-                default: return "";
+                default: return "Новый";
             }
         }
 
@@ -215,45 +215,67 @@ namespace Djava.Client
             LoadOrders();
         }
 
-        // --- СОХРАНЕНИЕ ---
+        // --- СОХРАНЕНИЕ (ИСПРАВЛЕНО) ---
         private void btnSaveChanges_Click(object sender, EventArgs e)
         {
             if (dgvOrders.Rows.Count == 0) return;
 
-            // Принудительно завершаем редактирование ячейки
+            // Снимаем фокус с текущей ячейки, чтобы зафиксировать изменения в ComboBox
             dgvOrders.EndEdit();
+            dgvOrders.CurrentCell = null;
+            dgvOrders.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
             int updatedCount = 0;
+            int errorCount = 0;
+            string lastError = "";
+
             try
             {
                 foreach (DataGridViewRow row in dgvOrders.Rows)
                 {
                     if (row.IsNewRow) continue;
 
-                    int orderId = Convert.ToInt32(row.Cells["OrderId"].Value);
-                    string name = row.Cells["ClientName"].Value?.ToString() ?? "";
-                    string phone = row.Cells["ClientContact"].Value?.ToString() ?? "";
+                    if (row.Cells["OrderId"].Value == null || row.Cells["OrderId"].Value == DBNull.Value)
+                        continue;
 
-                    string deliveryStr = row.Cells["DeliveryMethod"].Value?.ToString() ?? "Самовывоз";
+                    int orderId = Convert.ToInt32(row.Cells["OrderId"].Value);
+
+                    string name = row.Cells["ClientName"].Value?.ToString()?.Trim() ?? "";
+                    string phone = row.Cells["ClientContact"].Value?.ToString()?.Trim() ?? "";
+
+                    // ИСПРАВЛЕНИЕ: читаем через FormattedValue вместо Value
+                    string deliveryStr = row.Cells["DeliveryMethod"].FormattedValue?.ToString() ?? "Самовывоз";
                     DeliveryType delivery = ParseDelivery(deliveryStr);
 
-                    string statusStr = row.Cells["Status"].Value?.ToString() ?? "Новый";
+                    string statusStr = row.Cells["Status"].FormattedValue?.ToString() ?? "Новый";
                     OrderStatus status = ParseStatus(statusStr);
 
-                    if (_orders.UpdateOrderDetails(orderId, name, phone, delivery, status))
+                    try
                     {
-                        updatedCount++;
+                        if (_orders.UpdateOrderDetails(orderId, name, phone, delivery, status))
+                        {
+                            updatedCount++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorCount++;
+                        lastError = ex.Message;
                     }
                 }
 
-                MessageBox.Show($"Успешно обновлено: {updatedCount} заказов!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                string msg = $"Успешно обновлено: {updatedCount} заказов.";
+                if (errorCount > 0) msg += $"\nОшибок: {errorCount}. Последняя: {lastError}";
 
-                // Перезагружаем таблицу, чтобы подтянуть актуальные суммы (сортировка по OrderId, поэтому не прыгает)
+                MessageBox.Show(msg, "Результат", MessageBoxButtons.OK,
+                    errorCount > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+
                 LoadOrders();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при сохранении: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Критическая ошибка при сохранении: " + ex.Message, "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
