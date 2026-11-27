@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StatisticsForm));
             this.panelStatsTop = new System.Windows.Forms.Panel();
             this.btnFilter = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -38,8 +39,8 @@
             this.lblOrdersLinkStats = new System.Windows.Forms.Label();
             this.dgvStatistics = new System.Windows.Forms.DataGridView();
             this.panelStatsBottom = new System.Windows.Forms.Panel();
-            this.lblStatus = new System.Windows.Forms.Label();
             this.btnReport = new System.Windows.Forms.Button();
+            this.lblStatus = new System.Windows.Forms.Label();
             this.panelStatsTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStatistics)).BeginInit();
             this.panelStatsBottom.SuspendLayout();
@@ -153,6 +154,18 @@
             this.panelStatsBottom.Size = new System.Drawing.Size(800, 47);
             this.panelStatsBottom.TabIndex = 2;
             // 
+            // btnReport
+            // 
+            this.btnReport.BackColor = System.Drawing.Color.MistyRose;
+            this.btnReport.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnReport.Location = new System.Drawing.Point(641, 9);
+            this.btnReport.Name = "btnReport";
+            this.btnReport.Size = new System.Drawing.Size(152, 32);
+            this.btnReport.TabIndex = 1;
+            this.btnReport.Text = "Сформировать отчёт";
+            this.btnReport.UseVisualStyleBackColor = false;
+            this.btnReport.Click += new System.EventHandler(this.btnReport_Click);
+            // 
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
@@ -163,18 +176,6 @@
             this.lblStatus.TabIndex = 0;
             this.lblStatus.Text = "label1";
             // 
-            // btnReport
-            // 
-            this.btnReport.BackColor = System.Drawing.Color.MistyRose;
-            this.btnReport.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnReport.Location = new System.Drawing.Point(636, 12);
-            this.btnReport.Name = "btnReport";
-            this.btnReport.Size = new System.Drawing.Size(152, 23);
-            this.btnReport.TabIndex = 1;
-            this.btnReport.Text = "Сформировать отчёт";
-            this.btnReport.UseVisualStyleBackColor = false;
-            this.btnReport.Click += new System.EventHandler(this.btnReport_Click);
-            // 
             // StatisticsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -183,8 +184,9 @@
             this.Controls.Add(this.panelStatsBottom);
             this.Controls.Add(this.dgvStatistics);
             this.Controls.Add(this.panelStatsTop);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "StatisticsForm";
-            this.Text = "StatisticsForm";
+            this.Text = "Статистика";
             this.panelStatsTop.ResumeLayout(false);
             this.panelStatsTop.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStatistics)).EndInit();
