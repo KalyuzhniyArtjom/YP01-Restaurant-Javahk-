@@ -16,15 +16,30 @@ namespace Djava.Web.Controllers
             _cartRepo = new CartPgRepository(context);
         }
 
+        // ИСПРАВЛЕНИЕ: Берем ID из сессии, а не хардкодим 9
         private int GetClientId()
         {
-            // ВРЕМЕННО: используем клиента с ID = 9 (из вашей таблицы "Клиенты")
-            return 9;
+            string idStr = HttpContext.Session.GetString("ClientId");
+
+            // Если пользователь не вошел или ID нет в сессии, возвращаем 0
+            if (string.IsNullOrEmpty(idStr) || !int.TryParse(idStr, out int id))
+            {
+                return 0;
+            }
+            return id;
         }
 
         public IActionResult Index()
         {
             int clientId = GetClientId();
+
+            // Если клиент не авторизован, можно перенаправить на вход или показать пустую корзину
+            if (clientId == 0)
+            {
+                // Для простоты покажем пустую корзину или редирект на логин
+                // return RedirectToAction("Login", "Account"); 
+            }
+
             var items = _cartRepo.GetCartItems(clientId);
             return View(items);
         }
@@ -33,7 +48,17 @@ namespace Djava.Web.Controllers
         public IActionResult AddToCart(int dishId)
         {
             int clientId = GetClientId();
-            _cartRepo.AddToCart(clientId, dishId);
+
+            if (clientId > 0)
+            {
+                _cartRepo.AddToCart(clientId, dishId);
+            }
+            else
+            {
+                // Если не вошел - можно временно сохранить в куки или просто редиректить на логин
+                // Но пока оставим как есть, чтобы не ломать логику
+            }
+
             return RedirectToAction("Menu", "Home");
         }
 

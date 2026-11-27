@@ -1,5 +1,34 @@
 ﻿// wwwroot/js/cart.js
 
+// === ЛОГИКА ОТОБРАЖЕНИЯ АДРЕСА ===
+function toggleAddress(isDelivery) {
+    var addressGroup = document.getElementById('addressGroup');
+    var addressInput = document.getElementById('DeliveryAddress');
+
+    if (addressGroup && addressInput) {
+        if (isDelivery) {
+            addressGroup.style.display = 'block';
+            addressInput.required = true;
+        } else {
+            addressGroup.style.display = 'none';
+            addressInput.required = false;
+            addressInput.value = '';
+        }
+    }
+}
+
+// Проверка при загрузке страницы (если браузер запомнил выбор "Доставка")
+window.addEventListener('load', function () {
+    var radios = document.getElementsByName('PickupMethod');
+    for (var i = 0; i < radios.length; i++) {
+        if (radios[i].value === 'Доставка' && radios[i].checked) {
+            toggleAddress(true);
+        }
+    }
+});
+
+// === ЛОГИКА КОРЗИНЫ (Твоя старая логика) ===
+
 // Функция обновления плавающей панели
 function updateCartSummary() {
     fetch('/Cart/GetSummary')
@@ -10,16 +39,15 @@ function updateCartSummary() {
 
             var countEl = document.getElementById('cart-count');
             var totalEl = document.getElementById('cart-total');
-            var floatingCart = document.getElementById('floating-cart'); // Получаем саму панель
+            var floatingCart = document.getElementById('floating-cart');
 
             if (countEl) countEl.textContent = count.toString();
             if (totalEl) totalEl.textContent = Number(amount).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            // ГЛАВНОЕ ИЗМЕНЕНИЕ: Показываем или скрываем панель
             if (count > 0) {
-                floatingCart.style.display = 'flex';
+                if (floatingCart) floatingCart.style.display = 'flex';
             } else {
-                floatingCart.style.display = 'none';
+                if (floatingCart) floatingCart.style.display = 'none';
             }
         })
         .catch(function (err) { console.error('Ошибка корзины:', err); });
@@ -29,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 1. Запуск обновления панели при загрузке
     updateCartSummary();
 
-    // 2. Перехват кликов по кнопкам "Добавить в корзину" (для мгновенного обновления панели)
+    // 2. Перехват кликов по кнопкам "Добавить в корзину"
     document.addEventListener('click', function (e) {
         var target = e.target;
         while (target && target !== document) {

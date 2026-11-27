@@ -143,6 +143,7 @@
         font-size: 1.1rem;
         transition: 0.3s;
         margin-left: 20px;
+        cursor: pointer;
     }
 
         .btn-checkout:hover {
@@ -173,6 +174,69 @@
             color: #555;
             margin-bottom: 20px;
             font-weight: 300;
+        }
+
+    /* Стили для формы оформления */
+    .checkout-form {
+        margin-top: 30px;
+        padding: 25px;
+        background: #fdfdfd;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        text-align: left;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #555;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: 0.2s;
+        box-sizing: border-box;
+    }
+
+        .form-control:focus {
+            border-color: #b8a0a5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(184, 160, 165, 0.2);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: 0.2s;
+    }
+
+        .radio-label:hover {
+            background: #f0f0f0;
         }
 </style>
 
@@ -221,14 +285,48 @@
         <div class="cart-total-box">
             <div class="cart-total">Итого: @Model.Sum(x => x.TotalPrice).ToString("N2") ₽</div>
             <div class="cart-count-text">@Model.Sum(x => x.Quantity) позиций</div>
-            <div class="mt-4">
-                <a asp-controller="Home" asp-action="Menu" class="btn-continue">← Продолжить покупки</a>
-                <button class="btn-checkout" id="btnCheckout">Оформить заказ</button>
-            </div>
+            
+            <!-- ФОРМА ОФОРМЛЕНИЯ ЗАКАЗА -->
+            <form asp-controller="Checkout" asp-action="PlaceOrder" method="post" class="checkout-form">
+                @Html.AntiForgeryToken()
+                
+                <div class="form-group">
+                    <label class="form-label">Способ получения:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="PickupMethod" value="Самовывоз" checked onchange="toggleAddress(false)" />
+                            <span>Самовывоз</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="PickupMethod" value="Доставка" onchange="toggleAddress(true)" />
+                            <span>Доставка</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Блок адреса -->
+                <div class="form-group" id="addressGroup" style="display: none;">
+                    <label class="form-label" for="DeliveryAddress">Адрес доставки:</label>
+                    <input type="text" id="DeliveryAddress" name="DeliveryAddress" class="form-control" placeholder="Город, улица, дом, квартира" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="Comment">Комментарий к заказу:</label>
+                    <textarea id="Comment" name="Comment" class="form-control" placeholder="Например: без лука, позвонить за 10 минут..."></textarea>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <a asp-controller="Home" asp-action="Menu" class="btn-continue">← Продолжить покупки</a>
+                    <button type="submit" class="btn-checkout">Оформить заказ</button>
+                </div>
+            </form>
+            <!-- КОНЕЦ ФОРМЫ -->
+            
         </div>
     }
 </div>
 
 @section Scripts {
+    <!-- Подключаем внешний файл, где теперь живет вся логика -->
     <script src="~/js/cart.js"></script>
 }

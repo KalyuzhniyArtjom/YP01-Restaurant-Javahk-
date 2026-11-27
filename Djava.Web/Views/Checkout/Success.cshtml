@@ -1,0 +1,320 @@
+﻿@using DjavaLib.Models
+@model Order
+@{
+    ViewData["Title"] = $"Заказ #{Model.Id} — Ресторан «Джавахк»";
+}
+
+<style>
+    body {
+        background-color: #f8f9fa !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .receipt-container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        padding: 40px;
+        position: relative;
+    }
+
+        .receipt-container::before, .receipt-container::after {
+            content: '';
+            display: block;
+            height: 12px;
+            background: linear-gradient(135deg, #f8f9fa 50%, transparent 50%) -6px 0, linear-gradient(225deg, #f8f9fa 50%, transparent 50%) -6px 0;
+            background-size: 12px 12px;
+            margin: -40px -40px 20px -40px;
+        }
+
+        .receipt-container::after {
+            margin: 20px -40px -40px -40px;
+            transform: rotate(180deg);
+        }
+
+    .receipt-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px dashed #e0d5d7;
+    }
+
+    .receipt-logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #8a6f75;
+        margin-bottom: 5px;
+    }
+
+        .receipt-logo span {
+            color: #b8a0a5;
+        }
+
+    .receipt-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #333;
+        margin-top: 10px;
+    }
+
+    .receipt-info {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 25px;
+        padding: 15px;
+        background: #fdf8f8;
+        border-radius: 10px;
+        font-size: 0.9rem;
+    }
+
+    .receipt-info-item {
+        flex: 1 1 45%;
+    }
+
+    .receipt-info-label {
+        color: #999;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
+    }
+
+    .receipt-info-value {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .receipt-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 25px;
+    }
+
+        .receipt-table th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            padding: 10px 8px;
+            border-bottom: 2px solid #e0d5d7;
+            text-align: left;
+        }
+
+            .receipt-table th:last-child, .receipt-table td:last-child {
+                text-align: right;
+            }
+
+            .receipt-table th:nth-child(3), .receipt-table td:nth-child(3) {
+                text-align: center;
+            }
+
+        .receipt-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f0e8ea;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .receipt-table tr:last-child td {
+            border-bottom: none;
+        }
+
+    .receipt-total-section {
+        border-top: 2px dashed #e0d5d7;
+        padding-top: 20px;
+        margin-bottom: 25px;
+    }
+
+    .receipt-total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .receipt-total-label {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #555;
+    }
+
+    .receipt-total-value {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #8a6f75;
+    }
+
+    .receipt-payment-info {
+        text-align: center;
+        padding: 15px;
+        background: #f0ebe9;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+
+        .receipt-payment-info p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .receipt-payment-info strong {
+            color: #8a6f75;
+        }
+
+    .receipt-footer {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+        .receipt-footer p {
+            color: #999;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+    .btn-home {
+        display: inline-block;
+        background: #b8a0a5;
+        color: white;
+        padding: 14px 40px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn-home:hover {
+            background: #9a8288;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(184, 160, 165, 0.4);
+        }
+
+    .btn-print {
+        display: inline-block;
+        background: transparent;
+        color: #8a6f75;
+        padding: 14px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: 0.3s;
+        border: 2px solid #b8a0a5;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+        .btn-print:hover {
+            background: #b8a0a5;
+            color: white;
+        }
+
+    @@media print {
+        body {
+            background: white;
+        }
+
+        .receipt-container {
+            box-shadow: none;
+            margin: 0;
+            padding: 20px;
+            max-width: 100%;
+        }
+
+        .receipt-footer {
+            display: none;
+        }
+
+        .btn-home, .btn-print {
+            display: none;
+        }
+    }
+</style>
+
+<div class="receipt-container">
+    <div class="receipt-header">
+        <div class="receipt-logo">🍽️ Джава<span>хк</span></div>
+        <div class="receipt-title">Кассовый чек / Приход</div>
+    </div>
+
+    <div class="receipt-info">
+        <div class="receipt-info-item">
+            <div class="receipt-info-label">Номер заказа</div>
+            <div class="receipt-info-value">#@Model.Id</div>
+        </div>
+        <div class="receipt-info-item">
+            <div class="receipt-info-label">Дата оформления</div>
+            <div class="receipt-info-value">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+        </div>
+        <div class="receipt-info-item">
+            <div class="receipt-info-label">Клиент</div>
+            <div class="receipt-info-value">@Model.LastName @Model.FirstName</div>
+        </div>
+        <div class="receipt-info-item">
+            <div class="receipt-info-label">Способ получения</div>
+            <div class="receipt-info-value">@Model.PickupMethod</div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.DeliveryAddress))
+        {
+            <div class="receipt-info-item" style="flex: 1 1 100%;">
+                <div class="receipt-info-label">Адрес доставки</div>
+                <div class="receipt-info-value">@Model.DeliveryAddress</div>
+            </div>
+        }
+    </div>
+
+    <table class="receipt-table">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Наименование</th>
+                <th>Кол-во</th>
+                <th>Цена</th>
+                <th>Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int counter = 1;
+            }
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@counter</td>
+                    <td>@item.DishName</td> <!-- Теперь здесь будет реальное название -->
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("N2") ₽</td>
+                    <td><strong>@((item.Price * item.Quantity).ToString("N2")) ₽</strong></td>
+                </tr>
+                counter++;
+            }
+        </tbody>
+    </table>
+
+    <div class="receipt-total-section">
+        <div class="receipt-total-row">
+            <span class="receipt-total-label">ИТОГО</span>
+            <span class="receipt-total-value">@Model.TotalAmount.ToString("N2") ₽</span>
+        </div>
+    </div>
+
+    <div class="receipt-payment-info">
+        <p>Оплачено электронным средством платежа</p>
+        <p>Статус заказа: <strong>@Model.Status</strong></p>
+    </div>
+
+    <div class="receipt-footer">
+        <p>Спасибо за заказ! Мы свяжемся с вами для подтверждения.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn-home">На главную</a>
+        <button onclick="window.print()" class="btn-print">🖨️ Печать</button>
+    </div>
+</div>

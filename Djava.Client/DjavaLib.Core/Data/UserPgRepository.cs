@@ -26,7 +26,6 @@ namespace DjavaLib.Data
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@login", login);
-
                     using (var reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
@@ -43,7 +42,6 @@ namespace DjavaLib.Data
                     }
                 }
             }
-
             return null;
         }
 
@@ -51,7 +49,6 @@ namespace DjavaLib.Data
         {
             var user = GetUserByLogin(login);
             if (user == null) return false;
-
             string hash = HashPassword(password);
             return user.PasswordHash == hash;
         }
@@ -62,7 +59,6 @@ namespace DjavaLib.Data
             {
                 conn.Open();
                 string sql = "SELECT COUNT(*) FROM \"Users\" WHERE \"Login\" = @login";
-
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@login", login);
@@ -78,7 +74,6 @@ namespace DjavaLib.Data
                 conn.Open();
                 string sql = "INSERT INTO \"Users\" (\"Login\", \"PasswordHash\", \"FullName\", \"ContactInfo\", \"Role\") " +
                              "VALUES (@l, @h, @f, @c, @r)";
-
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@l", user.Login);
@@ -91,26 +86,43 @@ namespace DjavaLib.Data
             }
         }
 
-        // ⚠️ ИСПРАВЛЕННЫЙ МЕТОД (Ищем клиента по Email или Телефону)
+        /// <summary>
+        /// Ищет ID клиента в таблице "Клиенты" по Email или Телефону
+        /// </summary>
         public int GetClientIdByLogin(string login)
         {
+            var user = GetUserByLogin(login);
+            if (user == null || string.IsNullOrEmpty(user.ContactInfo))
+                return 0;
+
+            string contact = user.ContactInfo.Trim();
+
             using (var conn = new NpgsqlConnection(_connectionString))
             {
                 conn.Open();
-                // Связываем Users и Клиенты по ContactInfo (Email или Телефон)
-                string sql = @"
-                    SELECT к.""ID_Клиента"" 
-                    FROM ""Клиенты"" к
-                    JOIN ""Users"" u ON (u.""ContactInfo"" = к.""Email"" OR u.""ContactInfo"" = к.""Телефон"")
-                    WHERE u.""Login"" = @login";
 
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                // Попытка 1: Ищем по Email
+                string sqlEmail = "SELECT \"ID_Клиента\" FROM \"Клиенты\" WHERE \"Email\" = @contact LIMIT 1;";
+                using (var cmd = new NpgsqlCommand(sqlEmail, conn))
                 {
-                    cmd.Parameters.AddWithValue("@login", login);
+                    cmd.Parameters.AddWithValue("@contact", contact);
                     var result = cmd.ExecuteScalar();
-                    return result != null ? Convert.ToInt32(result) : 0;
+                    if (result != null && result != DBNull.Value)
+                        return Convert.ToInt32(result);
+                }
+
+                // Попытка 2: Ищем по Телефону
+                string sqlPhone = "SELECT \"ID_Клиента\" FROM \"Клиенты\" WHERE \"Телефон\" = @contact LIMIT 1;";
+                using (var cmd = new NpgsqlCommand(sqlPhone, conn))
+                {
+                    cmd.Parameters.AddWithValue("@contact", contact);
+                    var result = cmd.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                        return Convert.ToInt32(result);
                 }
             }
+
+            return 0;
         }
 
         private string HashPassword(string password)
