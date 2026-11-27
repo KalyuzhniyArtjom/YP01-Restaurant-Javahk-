@@ -111,7 +111,7 @@ namespace Djava.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Success(int id)
+        public async Task<IActionResult> Success(int id)  
         {
             var order = await _dbContext.GetOrderByIdAsync(id);
             if (order == null) return NotFound("Заказ не найден");
