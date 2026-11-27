@@ -10,16 +10,16 @@ namespace DjavaLib.Models
         public int ClientId { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        // Поля из таблицы "Заказы"
         public string PickupMethod { get; set; }
         public string DeliveryAddress { get; set; }
         public decimal TotalAmount { get; set; }
 
-        // ДОБАВЛЕНО: Статус заказа
-        public string Status { get; set; } = "Новый";
+        // ДОБАВЛЕНО: Телефон клиента
+        public string Phone { get; set; }
 
         public string LastName { get; set; }
         public string FirstName { get; set; }
+        public string Status { get; set; } = "Новый";
 
         public List<OrderItem> Items { get; set; }
 

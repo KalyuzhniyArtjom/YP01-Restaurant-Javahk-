@@ -24,7 +24,7 @@ namespace DjavaLib.Data
         }
 
         /// <summary>
-        /// Создание заказа. Принимает заказ и комментарий.
+        /// Создание заказа. ТЕЛЕФОН СОХРАНЯЕТСЯ ПРЯМО В ТАБЛИЦУ ЗАКАЗЫ.
         /// </summary>
         public async Task<int> CreateOrderAsync(Order order, string comment = "")
         {
@@ -36,7 +36,7 @@ namespace DjavaLib.Data
                 {
                     try
                     {
-                        // 1. Вставляем заказ в таблицу "Заказы"
+                        // 1. Вставляем заказ. ДОБАВЛЕНО: колонка "Телефон"
                         string insertOrderSql = @"
                             INSERT INTO ""Заказы"" (
                                 ""ID_Клиента"", 
@@ -47,7 +47,8 @@ namespace DjavaLib.Data
                                 ""Фамилия"",
                                 ""Имя"",
                                 ""ID_Статуса"",
-                                ""Комментарий""
+                                ""Комментарий"",
+                                ""Телефон"" 
                             ) VALUES (
                                 @clientId, 
                                 NOW(), 
@@ -57,7 +58,8 @@ namespace DjavaLib.Data
                                 @lastName,
                                 @firstName,
                                 1, 
-                                @comment
+                                @comment,
+                                @phone 
                             ) RETURNING ""ID_Заказа"";";
 
                         int orderId;
@@ -71,11 +73,13 @@ namespace DjavaLib.Data
                             cmd.Parameters.AddWithValue("@firstName", (object)order.FirstName ?? DBNull.Value);
                             cmd.Parameters.AddWithValue("@comment", (object)comment ?? DBNull.Value);
 
+                            // Сохраняем телефон из модели Order прямо в базу
+                            cmd.Parameters.AddWithValue("@phone", (object)order.Phone ?? DBNull.Value);
+
                             orderId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                         }
 
                         // 2. Вставляем позиции в "Позиции_Заказа"
-                        // ВАЖНО: Добавлена колонка "Сумма" и расчет цены * кол-во
                         string insertItemSql = @"
                             INSERT INTO ""Позиции_Заказа"" (
                                 ""ID_Заказа"", 
@@ -100,7 +104,6 @@ namespace DjavaLib.Data
                                 cmd.Parameters.AddWithValue("@qty", item.Quantity);
                                 cmd.Parameters.AddWithValue("@price", item.Price);
 
-                                // Расчет суммы позиции
                                 decimal sum = item.Price * item.Quantity;
                                 cmd.Parameters.AddWithValue("@sum", sum);
 
@@ -121,7 +124,7 @@ namespace DjavaLib.Data
         }
 
         /// <summary>
-        /// Получение заказа по ID. ДЕЛАЕТ JOIN С ТАБЛИЦЕЙ БЛЮДА ДЛЯ ПОЛУЧЕНИЯ НАЗВАНИЙ!
+        /// Получение заказа по ID. ТЕЛЕФОН БЕРЕТСЯ ПРЯМО ИЗ ТАБЛИЦЫ ЗАКАЗЫ.
         /// </summary>
         public async Task<Order> GetOrderByIdAsync(int orderId)
         {
@@ -130,8 +133,9 @@ namespace DjavaLib.Data
                 await conn.OpenAsync();
                 Order order = null;
 
-                // Читаем основной заказ
+                // Читаем заказ напрямую (телефон уже лежит в этой таблице)
                 string getOrderSql = "SELECT * FROM \"Заказы\" WHERE \"ID_Заказа\" = @id LIMIT 1;";
+
                 using (var cmd = new NpgsqlCommand(getOrderSql, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", orderId);
@@ -149,7 +153,11 @@ namespace DjavaLib.Data
                                 TotalAmount = reader.GetDecimal(reader.GetOrdinal("Сумма_Заказа")),
                                 LastName = reader.IsDBNull(reader.GetOrdinal("Фамилия")) ? null : reader.GetString(reader.GetOrdinal("Фамилия")),
                                 FirstName = reader.IsDBNull(reader.GetOrdinal("Имя")) ? null : reader.GetString(reader.GetOrdinal("Имя")),
-                                Status = "Новый" // Пока жестко задаем статус, можно доработать позже
+
+                                // Берем телефон прямо из колонки "Телефон" таблицы Заказы
+                                Phone = reader.IsDBNull(reader.GetOrdinal("Телефон")) ? null : reader.GetString(reader.GetOrdinal("Телефон")),
+
+                                Status = "Новый"
                             };
                         }
                     }
@@ -157,7 +165,7 @@ namespace DjavaLib.Data
 
                 if (order == null) return null;
 
-                // Читаем позиции С ДЕЛАЕМ JOIN С ТАБЛИЦЕЙ БЛЮДА
+                // Чтение позиций (JOIN с Блюдами нужен только для названий)
                 string getItemsSql = @"
                     SELECT p.""ID_Позиции"", p.""ID_Заказа"", p.""ID_Блюда"", b.""Наименование"", 
                            p.""Количество"", p.""Цена_За_Единицу""
@@ -174,13 +182,12 @@ namespace DjavaLib.Data
                         {
                             order.Items.Add(new OrderItem
                             {
-                                Id = reader.GetInt32(0), // ID_Позиции
-                                OrderId = reader.GetInt32(1), // ID_Заказа
-                                DishId = reader.GetInt32(2), // ID_Блюда
-                                // Берем наименование из JOIN с таблицей Блюда
+                                Id = reader.GetInt32(0),
+                                OrderId = reader.GetInt32(1),
+                                DishId = reader.GetInt32(2),
                                 DishName = reader.IsDBNull(3) ? $"Блюдо #{reader.GetInt32(2)}" : reader.GetString(3),
-                                Quantity = reader.GetInt32(4), // Количество
-                                Price = reader.GetDecimal(5) // Цена_За_Единицу
+                                Quantity = reader.GetInt32(4),
+                                Price = reader.GetDecimal(5)
                             });
                         }
                     }

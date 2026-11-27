@@ -255,6 +255,14 @@
             <div class="receipt-info-label">Дата оформления</div>
             <div class="receipt-info-value">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
         </div>
+        
+        <!-- ДОБАВЛЕН ТЕЛЕФОН -->
+        <div class="receipt-info-item">
+            <div class="receipt-info-label">Телефон</div>
+            <div class="receipt-info-value">@Model.Phone</div>
+        </div>
+        <!-- КОНЕЦ ДОБАВЛЕНИЯ -->
+
         <div class="receipt-info-item">
             <div class="receipt-info-label">Клиент</div>
             <div class="receipt-info-value">@Model.LastName @Model.FirstName</div>
@@ -290,7 +298,7 @@
             {
                 <tr>
                     <td>@counter</td>
-                    <td>@item.DishName</td> <!-- Теперь здесь будет реальное название -->
+                    <td>@item.DishName</td>
                     <td>@item.Quantity</td>
                     <td>@item.Price.ToString("N2") ₽</td>
                     <td><strong>@((item.Price * item.Quantity).ToString("N2")) ₽</strong></td>

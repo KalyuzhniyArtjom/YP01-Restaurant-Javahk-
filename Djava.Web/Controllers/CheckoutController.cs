@@ -42,7 +42,20 @@ namespace Djava.Web.Controllers
                 return Content("<h1 style='color:red'>Ошибка:</h1><p>Корзина пуста!</p><a href='/Cart'>Вернуться</a>");
             }
 
-            // 3. ФОРМИРОВАНИЕ ОБЪЕКТА ЗАКАЗА
+            // 3. ПОЛУЧЕНИЕ ТЕЛЕФОНА КЛИЕНТА ИЗ БАЗЫ
+            string clientPhone = null;
+            using (var conn = _dbContext.CreateConnection())
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand("SELECT \"Телефон\" FROM \"Клиенты\" WHERE \"ID_Клиента\" = @id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", clientId);
+                    var result = await cmd.ExecuteScalarAsync();
+                    clientPhone = result?.ToString();
+                }
+            }
+
+            // 4. ФОРМИРОВАНИЕ ОБЪЕКТА ЗАКАЗА
             decimal totalAmount = cartItems.Sum(i => i.TotalPrice);
 
             string fullNameSession = HttpContext.Session.GetString("FullName") ?? "Клиент";
@@ -58,11 +71,13 @@ namespace Djava.Web.Controllers
                 PickupMethod = PickupMethod ?? "Самовывоз",
                 DeliveryAddress = DeliveryAddress,
                 LastName = lastName,
-                FirstName = firstName
+                FirstName = firstName,
+
+                // ВАЖНО: Кладем телефон в объект заказа, чтобы он улетел в БД
+                Phone = clientPhone
             };
 
-            // 4. ПЕРЕНОС ТОВАРОВ С ГАРАНТИРОВАННЫМ ПОЛУЧЕНИЕМ НАЗВАНИЙ
-            // Мы делаем это здесь, чтобы гарантировать наличие имен в чеке
+            // 5. ПЕРЕНОС ТОВАРОВ С НАЗВАНИЯМИ
             using (var conn = _dbContext.CreateConnection())
             {
                 await conn.OpenAsync();
@@ -71,7 +86,6 @@ namespace Djava.Web.Controllers
                 {
                     string dishName = item.DishName;
 
-                    // Если имени нет в объекте корзины, берем его из таблицы Блюда по ID
                     if (string.IsNullOrEmpty(dishName))
                     {
                         string sql = "SELECT \"Наименование\" FROM \"Блюда\" WHERE \"ID_Блюда\" = @id LIMIT 1;";
@@ -86,22 +100,20 @@ namespace Djava.Web.Controllers
                     order.Items.Add(new OrderItem
                     {
                         DishId = item.DishId,
-                        DishName = dishName, // Теперь тут точно есть название!
+                        DishName = dishName,
                         Quantity = item.Quantity,
                         Price = item.Price
                     });
                 }
             }
 
-            // 5. СОХРАНЕНИЕ В БАЗУ ДАННЫХ
+            // 6. СОХРАНЕНИЕ В БАЗУ ДАННЫХ
             try
             {
                 int newOrderId = await _dbContext.CreateOrderAsync(order, Comment);
 
-                // Очищаем корзину
                 _cartRepo.ClearCart(clientId);
 
-                // Перекидываем на страницу успеха
                 return RedirectToAction("Success", new { id = newOrderId });
             }
             catch (System.Exception ex)
@@ -111,11 +123,11 @@ namespace Djava.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Success(int id)   
+        public async Task<IActionResult> Success(int id)
         {
             var order = await _dbContext.GetOrderByIdAsync(id);
             if (order == null) return NotFound("Заказ не найден");
             return View(order);
-        } 
+        }
     }
 }

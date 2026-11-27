@@ -4,6 +4,7 @@ using DjavaLib.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System;
+using System.Linq;
 
 namespace Djava.Web.Controllers
 {
@@ -144,7 +145,8 @@ namespace Djava.Web.Controllers
         }
 
         /// <summary>
-        /// Создает запись в таблице "Клиенты", если её нет
+        /// Создает запись в таблице "Клиенты", если её нет.
+        /// ИСПРАВЛЕНО: Теперь корректно определяет телефон и email.
         /// </summary>
         private int CreateClientIfNotExists(string fullName, string contactInfo)
         {
@@ -157,7 +159,6 @@ namespace Djava.Web.Controllers
             {
                 conn.Open();
 
-                // Используем точные имена колонок из твоей БД
                 string sql = @"
                     INSERT INTO ""Клиенты"" (""Фамилия"", ""Имя"", ""Телефон"", ""Email"", ""Дата_Регистрации"")
                     VALUES (@lastName, @firstName, @phone, @email, NOW())
@@ -168,19 +169,23 @@ namespace Djava.Web.Controllers
                     cmd.Parameters.AddWithValue("@lastName", lastName);
                     cmd.Parameters.AddWithValue("@firstName", firstName);
 
-                    // ВАРИАНТ 2: Умная проверка данных
-                    // Если contactInfo содержит '@', считаем это Email и пишем только туда.
-                    // Поле "Телефон" (varchar 20) оставляем пустым, чтобы не было ошибки переполнения.
-                    if (!string.IsNullOrEmpty(contactInfo) && contactInfo.Contains("@"))
+                    // ЛОГИКА ОПРЕДЕЛЕНИЯ: Телефон или Email?
+                    // Если строка начинается с '+' или состоит только из цифр/дефисов/скобок -> считаем телефоном
+                    bool isPhone = !string.IsNullOrEmpty(contactInfo) &&
+                                   (contactInfo.StartsWith("+") ||
+                                    contactInfo.All(c => char.IsDigit(c) || c == '-' || c == '(' || c == ')' || c == ' '));
+
+                    if (isPhone)
                     {
-                        cmd.Parameters.AddWithValue("@phone", DBNull.Value);
-                        cmd.Parameters.AddWithValue("@email", contactInfo);
+                        // Это телефон -> записываем в колонку "Телефон"
+                        cmd.Parameters.AddWithValue("@phone", contactInfo);
+                        cmd.Parameters.AddWithValue("@email", DBNull.Value);
                     }
                     else
                     {
-                        // Иначе считаем, что это телефон
-                        cmd.Parameters.AddWithValue("@phone", (object)contactInfo ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@email", DBNull.Value);
+                        // Это Email (или что-то другое) -> записываем в колонку "Email"
+                        cmd.Parameters.AddWithValue("@phone", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@email", contactInfo);
                     }
 
                     object result = cmd.ExecuteScalar();
