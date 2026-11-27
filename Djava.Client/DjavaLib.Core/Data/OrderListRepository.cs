@@ -17,35 +17,26 @@ namespace DjavaLib.Data
         public List<Order> GetOrders(OrderFilter filter)
         {
             var result = new List<Order>();
-
             using (var conn = _context.CreateConnection())
             {
                 conn.Open();
-
-                // ИСПРАВЛЕНИЕ: Фамилия и Имя теперь берутся из таблицы Клиенты (к)
-                // Добавлен COALESCE для защиты от NULL значений при объединении строк
                 var sql = @"
                     SELECT з.""ID_Заказа"", 
                            з.""Дата_Оформления"", 
-                           COALESCE(к.""Фамилия"", '') || ' ' || COALESCE(к.""Имя"", ''),
-                           COALESCE(к.""Телефон"", к.""Email"", ''),
+                           з.""Фамилия"" || ' ' || з.""Имя"",
+                           COALESCE(з.""Телефон"", ''),
                            з.""Способ_Получения"", 
                            ст.""Наименование"", 
                            з.""Сумма_Заказа""
                     FROM ""Заказы"" з
-                    LEFT JOIN ""Клиенты"" к ON з.""ID_Клиента"" = к.""ID_Клиента""
                     JOIN ""Статусы_Заказа"" ст ON з.""ID_Статуса"" = ст.""ID_Статуса""";
 
-                if (filter != null && filter.Status != null)
-                    sql += " WHERE з.\"ID_Статуса\" = @statusId";
-
-                sql += " ORDER BY з.\"Дата_Оформления\" DESC";
+                if (filter != null && filter.Status != null) sql += " WHERE з.\"ID_Статуса\" = @statusId";
+                sql += " ORDER BY з.\"ID_Заказа\" ASC";
 
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    if (filter != null && filter.Status != null)
-                        cmd.Parameters.AddWithValue("@statusId", GetStatusId(filter.Status.Value));
-
+                    if (filter != null && filter.Status != null) cmd.Parameters.AddWithValue("@statusId", GetStatusId(filter.Status.Value));
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -54,7 +45,7 @@ namespace DjavaLib.Data
                             {
                                 OrderId = reader.GetInt32(0),
                                 OrderDate = reader.GetDateTime(1),
-                                ClientName = reader.GetString(2).Trim(), // Trim убирает лишний пробел, если имени нет
+                                ClientName = reader.GetString(2),
                                 ClientContact = reader.GetString(3),
                                 DeliveryMethod = ParseDeliveryType(reader.GetString(4)),
                                 Status = ParseOrderStatus(reader.GetString(5)),
@@ -115,10 +106,9 @@ namespace DjavaLib.Data
             }
         }
 
-        // ИСПРАВЛЕНИЕ: Обновление данных клиента теперь идет в таблицу "Клиенты"
         public bool UpdateOrderDetails(int orderId, string clientName, string clientContact, DeliveryType delivery, OrderStatus status)
         {
-            string[] nameParts = clientName.Trim().Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+            string[] nameParts = clientName.Trim().Split(new char[] { ' ' }, 2);
             string lastName = nameParts.Length > 0 ? nameParts[0] : "";
             string firstName = nameParts.Length > 1 ? nameParts[1] : "";
 
@@ -129,39 +119,18 @@ namespace DjavaLib.Data
                 {
                     try
                     {
-                        // 1. Сначала обновляем статус и способ получения в Заказах
                         string sqlOrder = @"UPDATE ""Заказы"" 
-                                            SET ""ID_Статуса"" = @status, ""Способ_Получения"" = @delivery 
+                                            SET ""Фамилия"" = @last, ""Имя"" = @first, ""Телефон"" = @phone,
+                                                ""ID_Статуса"" = @status, ""Способ_Получения"" = @delivery 
                                             WHERE ""ID_Заказа"" = @id";
                         using (var cmd = new NpgsqlCommand(sqlOrder, conn, transaction))
-                        {
-                            cmd.Parameters.AddWithValue("@status", GetStatusId(status));
-                            cmd.Parameters.AddWithValue("@delivery", delivery == DeliveryType.Delivery ? "Доставка" : "Самовывоз");
-                            cmd.Parameters.AddWithValue("@id", orderId);
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        // 2. Находим ID клиента, привязанного к этому заказу
-                        int clientId;
-                        string sqlFindClient = "SELECT \"ID_Клиента\" FROM \"Заказы\" WHERE \"ID_Заказа\" = @id";
-                        using (var cmd = new NpgsqlCommand(sqlFindClient, conn, transaction))
-                        {
-                            cmd.Parameters.AddWithValue("@id", orderId);
-                            var res = cmd.ExecuteScalar();
-                            if (res == null || res == DBNull.Value) throw new Exception("Клиент для заказа не найден");
-                            clientId = Convert.ToInt32(res);
-                        }
-
-                        // 3. Обновляем ФИО и телефон в таблице Клиенты
-                        string sqlClient = @"UPDATE ""Клиенты"" 
-                                             SET ""Фамилия"" = @last, ""Имя"" = @first, ""Телефон"" = @phone 
-                                             WHERE ""ID_Клиента"" = @clientId";
-                        using (var cmd = new NpgsqlCommand(sqlClient, conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@last", lastName);
                             cmd.Parameters.AddWithValue("@first", firstName);
                             cmd.Parameters.AddWithValue("@phone", clientContact);
-                            cmd.Parameters.AddWithValue("@clientId", clientId);
+                            cmd.Parameters.AddWithValue("@status", GetStatusId(status));
+                            cmd.Parameters.AddWithValue("@delivery", delivery == DeliveryType.Delivery ? "Доставка" : "Самовывоз");
+                            cmd.Parameters.AddWithValue("@id", orderId);
                             cmd.ExecuteNonQuery();
                         }
 
@@ -250,6 +219,73 @@ namespace DjavaLib.Data
                     }
                 }
             }
+        }
+
+        public StatisticsModel GetStatistics(DateTime startDate, DateTime endDate)
+        {
+            var model = new StatisticsModel();
+
+            using (var conn = _context.CreateConnection())
+            {
+                conn.Open();
+
+                // Выручка и выполненные
+                string sqlRevenue = @"
+                    SELECT COALESCE(SUM(""Сумма_Заказа""), 0), COUNT(*) 
+                    FROM ""Заказы"" 
+                    WHERE ""ID_Статуса"" = 6 
+                      AND ""Дата_Оформления"" >= @start AND ""Дата_Оформления"" <= @end";
+                decimal totalRevenue = 0;
+                int completedCount = 0;
+                using (var cmd = new NpgsqlCommand(sqlRevenue, conn))
+                {
+                    cmd.Parameters.AddWithValue("@start", startDate);
+                    cmd.Parameters.AddWithValue("@end", endDate);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            totalRevenue = reader.GetDecimal(0);
+                            completedCount = reader.GetInt32(1);
+                        }
+                    }
+                }
+
+                // Общее количество
+                string sqlTotal = @"SELECT COUNT(*) FROM ""Заказы"" WHERE ""Дата_Оформления"" >= @start AND ""Дата_Оформления"" <= @end";
+                int totalCount = 0;
+                using (var cmd = new NpgsqlCommand(sqlTotal, conn))
+                {
+                    cmd.Parameters.AddWithValue("@start", startDate);
+                    cmd.Parameters.AddWithValue("@end", endDate);
+                    totalCount = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+
+                // Отменённые
+                string sqlCancelled = @"SELECT COUNT(*) FROM ""Заказы"" WHERE ""ID_Статуса"" = 7 AND ""Дата_Оформления"" >= @start AND ""Дата_Оформления"" <= @end";
+                int cancelledCount = 0;
+                using (var cmd = new NpgsqlCommand(sqlCancelled, conn))
+                {
+                    cmd.Parameters.AddWithValue("@start", startDate);
+                    cmd.Parameters.AddWithValue("@end", endDate);
+                    cancelledCount = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+
+                decimal avgCheck = completedCount > 0 ? totalRevenue / completedCount : 0;
+
+                model.TotalRevenue = totalRevenue;
+                model.TotalOrders = totalCount;
+                model.CompletedOrders = completedCount;
+                model.CancelledOrders = cancelledCount;
+                model.AverageCheck = avgCheck;
+
+                model.Rows.Add(new StatisticsRow { IndicatorName = "Общая выручка", DisplayValue = totalRevenue.ToString("N2") + " ₽" });
+                model.Rows.Add(new StatisticsRow { IndicatorName = "Количество заказов", DisplayValue = totalCount.ToString() });
+                model.Rows.Add(new StatisticsRow { IndicatorName = "Выполненные заказы", DisplayValue = completedCount.ToString() });
+                model.Rows.Add(new StatisticsRow { IndicatorName = "Средний чек", DisplayValue = avgCheck.ToString("N2") + " ₽" });
+                model.Rows.Add(new StatisticsRow { IndicatorName = "Отменённые заказы", DisplayValue = cancelledCount.ToString() });
+            }
+            return model;
         }
 
         private DeliveryType ParseDeliveryType(string value)

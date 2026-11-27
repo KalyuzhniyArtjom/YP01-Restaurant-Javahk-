@@ -16,7 +16,6 @@ namespace Djava.Client
         private readonly OrderListModel _model;
         private readonly DbContext _dbContext;
         private StatisticsForm _statsForm;
-
         private string _sortColumn = "OrderId";
         private bool _ascending = true;
 
@@ -118,7 +117,6 @@ namespace Djava.Client
                         dgvOrders.Rows[i].Cells["Status"].Value = GetStatusText(result[i].Status);
                     }
                 }
-
                 lblStatus.Text = "Всего заказов: " + result.Count;
             }
             catch (Exception ex)
@@ -178,7 +176,7 @@ namespace Djava.Client
                 case OrderStatus.Delivering: return "Доставляется";
                 case OrderStatus.Completed: return "Выполнен";
                 case OrderStatus.Cancelled: return "Отменён";
-                default: return "Новый";
+                default: return "";
             }
         }
 
@@ -215,67 +213,41 @@ namespace Djava.Client
             LoadOrders();
         }
 
-        // --- СОХРАНЕНИЕ (ИСПРАВЛЕНО) ---
         private void btnSaveChanges_Click(object sender, EventArgs e)
         {
             if (dgvOrders.Rows.Count == 0) return;
 
-            // Снимаем фокус с текущей ячейки, чтобы зафиксировать изменения в ComboBox
             dgvOrders.EndEdit();
-            dgvOrders.CurrentCell = null;
-            dgvOrders.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
             int updatedCount = 0;
-            int errorCount = 0;
-            string lastError = "";
-
             try
             {
                 foreach (DataGridViewRow row in dgvOrders.Rows)
                 {
                     if (row.IsNewRow) continue;
 
-                    if (row.Cells["OrderId"].Value == null || row.Cells["OrderId"].Value == DBNull.Value)
-                        continue;
-
                     int orderId = Convert.ToInt32(row.Cells["OrderId"].Value);
+                    string name = row.Cells["ClientName"].Value?.ToString() ?? "";
+                    string phone = row.Cells["ClientContact"].Value?.ToString() ?? "";
 
-                    string name = row.Cells["ClientName"].Value?.ToString()?.Trim() ?? "";
-                    string phone = row.Cells["ClientContact"].Value?.ToString()?.Trim() ?? "";
-
-                    // ИСПРАВЛЕНИЕ: читаем через FormattedValue вместо Value
-                    string deliveryStr = row.Cells["DeliveryMethod"].FormattedValue?.ToString() ?? "Самовывоз";
+                    string deliveryStr = row.Cells["DeliveryMethod"].Value?.ToString() ?? "Самовывоз";
                     DeliveryType delivery = ParseDelivery(deliveryStr);
 
-                    string statusStr = row.Cells["Status"].FormattedValue?.ToString() ?? "Новый";
+                    string statusStr = row.Cells["Status"].Value?.ToString() ?? "Новый";
                     OrderStatus status = ParseStatus(statusStr);
 
-                    try
+                    if (_orders.UpdateOrderDetails(orderId, name, phone, delivery, status))
                     {
-                        if (_orders.UpdateOrderDetails(orderId, name, phone, delivery, status))
-                        {
-                            updatedCount++;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        errorCount++;
-                        lastError = ex.Message;
+                        updatedCount++;
                     }
                 }
 
-                string msg = $"Успешно обновлено: {updatedCount} заказов.";
-                if (errorCount > 0) msg += $"\nОшибок: {errorCount}. Последняя: {lastError}";
-
-                MessageBox.Show(msg, "Результат", MessageBoxButtons.OK,
-                    errorCount > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
-
+                MessageBox.Show($"Успешно обновлено: {updatedCount} заказов!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadOrders();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Критическая ошибка при сохранении: " + ex.Message, "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка при сохранении: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

@@ -29,11 +29,17 @@
         private void InitializeComponent()
         {
             this.panelStatsTop = new System.Windows.Forms.Panel();
-            this.lblOrdersLinkStats = new System.Windows.Forms.Label();
+            this.btnFilter = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.dtpEnd = new System.Windows.Forms.DateTimePicker();
+            this.dtpStart = new System.Windows.Forms.DateTimePicker();
             this.lblStatsLinkStats = new System.Windows.Forms.Label();
+            this.lblOrdersLinkStats = new System.Windows.Forms.Label();
             this.dgvStatistics = new System.Windows.Forms.DataGridView();
             this.panelStatsBottom = new System.Windows.Forms.Panel();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.btnReport = new System.Windows.Forms.Button();
             this.panelStatsTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStatistics)).BeginInit();
             this.panelStatsBottom.SuspendLayout();
@@ -42,6 +48,11 @@
             // panelStatsTop
             // 
             this.panelStatsTop.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.panelStatsTop.Controls.Add(this.btnFilter);
+            this.panelStatsTop.Controls.Add(this.label2);
+            this.panelStatsTop.Controls.Add(this.label1);
+            this.panelStatsTop.Controls.Add(this.dtpEnd);
+            this.panelStatsTop.Controls.Add(this.dtpStart);
             this.panelStatsTop.Controls.Add(this.lblStatsLinkStats);
             this.panelStatsTop.Controls.Add(this.lblOrdersLinkStats);
             this.panelStatsTop.Dock = System.Windows.Forms.DockStyle.Top;
@@ -50,18 +61,51 @@
             this.panelStatsTop.Size = new System.Drawing.Size(800, 88);
             this.panelStatsTop.TabIndex = 0;
             // 
-            // lblOrdersLinkStats
+            // btnFilter
             // 
-            this.lblOrdersLinkStats.AutoSize = true;
-            this.lblOrdersLinkStats.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblOrdersLinkStats.Font = new System.Drawing.Font("Sitka Heading", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblOrdersLinkStats.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.lblOrdersLinkStats.Location = new System.Drawing.Point(12, 9);
-            this.lblOrdersLinkStats.Name = "lblOrdersLinkStats";
-            this.lblOrdersLinkStats.Size = new System.Drawing.Size(153, 30);
-            this.lblOrdersLinkStats.TabIndex = 1;
-            this.lblOrdersLinkStats.Text = "Список заказов";
-            this.lblOrdersLinkStats.Click += new System.EventHandler(this.lblOrdersLinkStats_Click);
+            this.btnFilter.BackColor = System.Drawing.Color.MistyRose;
+            this.btnFilter.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnFilter.Location = new System.Drawing.Point(626, 62);
+            this.btnFilter.Name = "btnFilter";
+            this.btnFilter.Size = new System.Drawing.Size(135, 23);
+            this.btnFilter.TabIndex = 10;
+            this.btnFilter.Text = "Расчитать";
+            this.btnFilter.UseVisualStyleBackColor = false;
+            this.btnFilter.Click += new System.EventHandler(this.btnFilter_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.Location = new System.Drawing.Point(481, 41);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(69, 13);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Дата конца:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.ForeColor = System.Drawing.Color.White;
+            this.label1.Location = new System.Drawing.Point(481, 18);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(74, 13);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Дата начала:";
+            // 
+            // dtpEnd
+            // 
+            this.dtpEnd.Location = new System.Drawing.Point(561, 38);
+            this.dtpEnd.Name = "dtpEnd";
+            this.dtpEnd.Size = new System.Drawing.Size(200, 20);
+            this.dtpEnd.TabIndex = 7;
+            // 
+            // dtpStart
+            // 
+            this.dtpStart.Location = new System.Drawing.Point(561, 12);
+            this.dtpStart.Name = "dtpStart";
+            this.dtpStart.Size = new System.Drawing.Size(200, 20);
+            this.dtpStart.TabIndex = 6;
             // 
             // lblStatsLinkStats
             // 
@@ -74,7 +118,18 @@
             this.lblStatsLinkStats.Size = new System.Drawing.Size(224, 30);
             this.lblStatsLinkStats.TabIndex = 5;
             this.lblStatsLinkStats.Text = "Статистика по заказам";
-            this.lblStatsLinkStats.Click += new System.EventHandler(this.lblStatsLinkStats_Click);
+            // 
+            // lblOrdersLinkStats
+            // 
+            this.lblOrdersLinkStats.AutoSize = true;
+            this.lblOrdersLinkStats.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblOrdersLinkStats.Font = new System.Drawing.Font("Sitka Heading", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblOrdersLinkStats.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.lblOrdersLinkStats.Location = new System.Drawing.Point(12, 9);
+            this.lblOrdersLinkStats.Name = "lblOrdersLinkStats";
+            this.lblOrdersLinkStats.Size = new System.Drawing.Size(153, 30);
+            this.lblOrdersLinkStats.TabIndex = 1;
+            this.lblOrdersLinkStats.Text = "Список заказов";
             // 
             // dgvStatistics
             // 
@@ -90,6 +145,7 @@
             // 
             // panelStatsBottom
             // 
+            this.panelStatsBottom.Controls.Add(this.btnReport);
             this.panelStatsBottom.Controls.Add(this.lblStatus);
             this.panelStatsBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panelStatsBottom.Location = new System.Drawing.Point(0, 403);
@@ -107,6 +163,18 @@
             this.lblStatus.TabIndex = 0;
             this.lblStatus.Text = "label1";
             // 
+            // btnReport
+            // 
+            this.btnReport.BackColor = System.Drawing.Color.MistyRose;
+            this.btnReport.Font = new System.Drawing.Font("Palatino Linotype", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnReport.Location = new System.Drawing.Point(636, 12);
+            this.btnReport.Name = "btnReport";
+            this.btnReport.Size = new System.Drawing.Size(152, 23);
+            this.btnReport.TabIndex = 1;
+            this.btnReport.Text = "Сформировать отчёт";
+            this.btnReport.UseVisualStyleBackColor = false;
+            this.btnReport.Click += new System.EventHandler(this.btnReport_Click);
+            // 
             // StatisticsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -117,7 +185,6 @@
             this.Controls.Add(this.panelStatsTop);
             this.Name = "StatisticsForm";
             this.Text = "StatisticsForm";
-            this.Load += new System.EventHandler(this.StatisticsForm_Load);
             this.panelStatsTop.ResumeLayout(false);
             this.panelStatsTop.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStatistics)).EndInit();
@@ -135,5 +202,11 @@
         private System.Windows.Forms.DataGridView dgvStatistics;
         private System.Windows.Forms.Panel panelStatsBottom;
         private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.Button btnFilter;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.DateTimePicker dtpEnd;
+        private System.Windows.Forms.DateTimePicker dtpStart;
+        private System.Windows.Forms.Button btnReport;
     }
 }
